@@ -1,5 +1,7 @@
 package Model;
 
+import javafx.util.Pair;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,16 +11,16 @@ import java.util.TreeMap;
 public class Document implements Serializable{
     public static HashMap<String, Document> documentsCollection = new HashMap<>();
 
+    public HashMap<String, MyPair> hMap;
     public String docID;
     public String mostFrequentTerm;
-    public HashMap<String, Integer> hMap;
     public int documentLength;
     public int uniqueTermsCounter;
     public int mostFrequentTermValue;
     public double docVectorSize;
 
     public Document(){
-        this.hMap = new HashMap<String,Integer>();
+        this.hMap = new HashMap<String, MyPair>();
         mostFrequentTermValue = 0;
         documentLength = 0;
         uniqueTermsCounter = 0;
@@ -37,10 +39,9 @@ public class Document implements Serializable{
         int val = 1;
 
         if (hMap.containsKey(term)) {
-            val = hMap.get(term) + 1;
-            hMap.put(term, val);
+            hMap.get(term).incrementDF();
         } else {
-            hMap.put(term, val);
+            hMap.put(term, new MyPair(val,this.documentLength));
             this.uniqueTermsCounter++;
         }
 
@@ -69,7 +70,7 @@ public class Document implements Serializable{
 
     public double getWordWeight(String word){
         double idf = Dictionary.getWordIDF(word);
-        double normalTF = hMap.get(word)/this.mostFrequentTermValue;
+        double normalTF = hMap.get(word).getDf()/this.mostFrequentTermValue;
         return normalTF*idf;
     }
 
@@ -103,11 +104,11 @@ public class Document implements Serializable{
         this.mostFrequentTerm = mostFrequentTerm;
     }
 
-    public HashMap<String, Integer> gethMap() {
+    public HashMap<String, MyPair> gethMap() {
         return hMap;
     }
 
-    public void sethMap(HashMap<String, Integer> hMap) {
+    public void sethMap(HashMap<String, MyPair> hMap) {
         this.hMap = hMap;
     }
 

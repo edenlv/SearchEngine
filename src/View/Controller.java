@@ -8,6 +8,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.util.Pair;
 
 import javax.swing.*;
 import java.awt.*;
@@ -245,21 +246,21 @@ public class Controller {
 
 
 
-    public void test(ActionEvent actionEvent){
-        File f = new File(ReadFile.postingsPath+"\\DocumentsCollection.txt");
-        Document doc = new Document();
-        doc.docVectorSize = 5;
-        doc.mostFrequentTermValue = 3;
-        doc.mostFrequentTerm = "cat";
-        doc.docID = "DOC1";
-        doc.documentLength = 234;
-        doc.uniqueTermsCounter = 5;
-        doc.hMap = null;
-
-        documentsCollection.put("DOC1", doc);
-        Document.
-                writeCollectionToFile();
-    }
+//    public void test(ActionEvent actionEvent){
+//        File f = new File(ReadFile.postingsPath+"\\DocumentsCollection.txt");
+//        Document doc = new Document();
+//        doc.docVectorSize = 5;
+//        doc.mostFrequentTermValue = 3;
+//        doc.mostFrequentTerm = "cat";
+//        doc.docID = "DOC1";
+//        doc.documentLength = 234;
+//        doc.uniqueTermsCounter = 5;
+//        doc.hMap = null;
+//
+//        documentsCollection.put("DOC1", doc);
+//        Document.
+//                writeCollectionToFile();
+//    }
 
 //    public void test(ActionEvent actionEvent){
 //        try {
@@ -269,6 +270,12 @@ public class Controller {
 //            System.out.println("succeeded");
 //        } catch (Exception e){e.printStackTrace(); }
 //    }
+
+    public void test(ActionEvent event){
+        Document.computeAllDocVectorSizes();
+        Document.writeCollectionToFile();
+        System.out.println("success");
+    }
 
 
 

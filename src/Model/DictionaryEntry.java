@@ -20,7 +20,7 @@ public class DictionaryEntry{
 
     @Override
     public String toString(){
-        return (this.df +":"+this.sumTF+":" + this.postingLine);
+        return (this.df +":" + this.sumTF + ":" + this.idf + ":" + this.postingLine);
     }
 
 }
