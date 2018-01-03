@@ -73,7 +73,6 @@ public class Dictionary {
         } catch (IOException e){}
     }
 
-
     public static String getDictionaryPath(String folderPath){
         return folderPath+"\\Dictionary"+ (Parse.toStem? "_WithStem" : "") + ".txt";
 
@@ -112,7 +111,6 @@ public class Dictionary {
 
     /*Loads dictionary file from a chosen path into the program's memory and data structures*/
     public static void loadDictionary(String filePath){
-
         String line;
         try {
             dictionaryFullPath = filePath;
@@ -138,7 +136,9 @@ public class Dictionary {
     }
 
     public static double getWordIDF(String word){
-        return md_Dictionary.get(word).idf;
+        DictionaryEntry dEntry = md_Dictionary.get(word);
+        if (dEntry==null) return Math.log10(Parse.numberOfDocuments)/Math.log10(2);
+        return dEntry.idf;
     }
 
 

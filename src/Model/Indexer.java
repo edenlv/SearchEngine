@@ -38,14 +38,16 @@ public class Indexer {
                 if (sb.length()!=0) sb.append(",");
                 sb.append(d.docID);
                 sb.append(":");
-                sb.append(d.hMap.get(term));
+                sb.append(d.hMap.get(term).getDf());
+//                sb.append(":");
+//                sb.append(d.hMap.get(term).getIdxInDoc());
 
 //                Model.Dictionary.IncrementDF(term);
 //                Model.Dictionary.AddTF(term, d.hMap.get(term));
             }
 
-            d.hMap.clear();
-            d.hMap = null;
+//            d.hMap.clear();
+//            d.hMap = null;
             Document.documentsCollection.put(d.docID, d);
         }
         createTempPostingFile();

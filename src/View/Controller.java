@@ -262,16 +262,12 @@ public class Controller {
 //                writeCollectionToFile();
 //    }
 
-//    public void test(ActionEvent actionEvent){
-//        try {
-//            File f = new File(ReadFile.postingsPath + "\\DocumentsCollection.txt");
-//            ObjectInputStream input = new ObjectInputStream(new FileInputStream(ReadFile.postingsPath + "\\DocumentsCollection.txt"));
-//            HashMap<String, Document> map = (HashMap<String, Document>) input.readObject();
-//            System.out.println("succeeded");
-//        } catch (Exception e){e.printStackTrace(); }
-//    }
+    public void test2(ActionEvent actionEvent){
+        Document.loadDocumentsFile();
+        System.out.println("succeeded");
+    }
 
-    public void test(ActionEvent event){
+    public void test1(ActionEvent event){
         Document.computeAllDocVectorSizes();
         Document.writeCollectionToFile();
         System.out.println("success");

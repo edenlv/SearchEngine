@@ -97,7 +97,7 @@
                      <Insets left="20.0" />
                   </HBox.margin>
                </Button>
-               <Button fx:id="btn_reset1" alignment="CENTER" contentDisplay="CENTER" layoutX="495.0" layoutY="10.0" onAction="#test" prefHeight="50" prefWidth="100.0" text="test" textAlignment="CENTER">
+               <Button fx:id="btn_reset1" alignment="CENTER" contentDisplay="CENTER" layoutX="495.0" layoutY="10.0" onAction="#test1" prefHeight="50" prefWidth="100.0" text="test1" textAlignment="CENTER">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>
@@ -126,6 +126,11 @@
                   </HBox.margin>
                     </Button>
                <Button fx:id="btn_showCache" alignment="CENTER" contentDisplay="CENTER" layoutX="310.0" layoutY="10.0" onAction="#onOpenFile" prefHeight="50" prefWidth="200.0" text="Show Cache" textAlignment="CENTER">
+                  <font>
+                     <Font name="System Bold" size="18.0" />
+                  </font>
+               </Button>
+               <Button fx:id="btn_showCache1" alignment="CENTER" contentDisplay="CENTER" layoutX="420.0" layoutY="10.0" onAction="#test2" prefHeight="50" prefWidth="112.0" text="test2" textAlignment="CENTER">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>

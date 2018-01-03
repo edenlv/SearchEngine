@@ -66,6 +66,8 @@ public class Document implements Serializable{
         }
 
         this.docVectorSize = Math.sqrt(sumOfSquaredWeights);
+        this.hMap.clear();
+        this.hMap = null;
     }
 
     public double getWordWeight(String word){
@@ -90,6 +92,16 @@ public class Document implements Serializable{
             Document doc = it.next();
             doc.computeVectorSize();
         }
+    }
+
+    public static boolean loadDocumentsFile(){
+        try {
+            String filePath = ReadFile.postingsPath+"\\DocumentsCollection" + ((Parse.toStem) ? "_WithStem" : "") + ".txt";
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath));
+            HashMap<String, Document> map = (HashMap<String, Document>) input.readObject();
+        } catch (Exception e) {return false;}
+
+        return true;
     }
 
     public String getDocID() {
