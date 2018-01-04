@@ -39,8 +39,8 @@ public class Indexer {
                 sb.append(d.docID);
                 sb.append(":");
                 sb.append(d.hMap.get(term).getDf());
-//                sb.append(":");
-//                sb.append(d.hMap.get(term).getIdxInDoc());
+                sb.append(":");
+                sb.append(d.hMap.get(term).getIdxInDoc());
 
 //                Model.Dictionary.IncrementDF(term);
 //                Model.Dictionary.AddTF(term, d.hMap.get(term));
@@ -48,6 +48,7 @@ public class Indexer {
 
 //            d.hMap.clear();
 //            d.hMap = null;
+            d.computeVectorSize();
             Document.documentsCollection.put(d.docID, d);
         }
         createTempPostingFile();

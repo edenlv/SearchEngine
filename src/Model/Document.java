@@ -18,6 +18,7 @@ public class Document implements Serializable{
     public int uniqueTermsCounter;
     public int mostFrequentTermValue;
     public double docVectorSize;
+    public String folderName;
 
     public Document(){
         this.hMap = new HashMap<String, MyPair>();
@@ -71,7 +72,7 @@ public class Document implements Serializable{
     }
 
     public double getWordWeight(String word){
-        double idf = Dictionary.getWordIDF(word);
+        double idf = Dictionary.getWordPreIDF(word);
         double normalTF = hMap.get(word).getDf()/this.mostFrequentTermValue;
         return normalTF*idf;
     }
@@ -83,6 +84,8 @@ public class Document implements Serializable{
         try {
             ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(new File(filePath)));
             writer.writeObject(documentsCollection);
+            writer.flush();
+            writer.close();
         } catch (IOException e){ e.printStackTrace(); }
     }
 

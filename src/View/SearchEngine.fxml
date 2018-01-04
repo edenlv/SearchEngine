@@ -130,10 +130,13 @@
                      <Font name="System Bold" size="18.0" />
                   </font>
                </Button>
-               <Button fx:id="btn_showCache1" alignment="CENTER" contentDisplay="CENTER" layoutX="420.0" layoutY="10.0" onAction="#test2" prefHeight="50" prefWidth="112.0" text="test2" textAlignment="CENTER">
+               <Button fx:id="btn_loadPreDictionary" alignment="CENTER" contentDisplay="CENTER" layoutX="420.0" layoutY="10.0" onAction="#onLoadDictionary" prefHeight="50" prefWidth="234.0" text="Load Prerun Dictionary" textAlignment="CENTER">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>
+                  <HBox.margin>
+                     <Insets left="20.0" />
+                  </HBox.margin>
                </Button>
                 </children>
 

@@ -30,6 +30,7 @@ public class Controller {
     public CheckBox cb_stem;
     public Button btn_showCache;
     public Button btn_showDictionary;
+    public Button btn_loadPreDictionary;
     public long programRunTimeInSeconds;
     public Alert waitAlert;
 
@@ -164,8 +165,11 @@ public class Controller {
 
         File f = fileChooser.showOpenDialog(null);
         if (null!=f && f.exists()){
-
-            Dictionary.loadDictionary(f.getAbsolutePath());
+            if (event.getSource()==btn_loadPreDictionary){
+                Dictionary.loadPreDictionary(f.getAbsolutePath());
+            } else {
+                Dictionary.loadDictionary(f.getAbsolutePath());
+            }
         }
     }
 
@@ -268,11 +272,16 @@ public class Controller {
     }
 
     public void test1(ActionEvent event){
-        Document.computeAllDocVectorSizes();
+        //Document.computeAllDocVectorSizes();
         Document.writeCollectionToFile();
         System.out.println("success");
     }
 
+    public void test3(ActionEvent event){
+        String str = "5.882643049361842";
+        double x = Double.parseDouble(str);
+        System.out.println(x);
+    }
 
 
 

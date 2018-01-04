@@ -13,6 +13,8 @@ import static Model.ReadFile.postingsPath;
 public class Dictionary {
 
     public static HashMap<String, DictionaryEntry> md_Dictionary = new HashMap<>();
+    public static HashMap<String, DictionaryEntry> preDictionary = new HashMap<>();
+
     public static int lineCounter = 0;
     public static String dictionaryFullPath = null;
 
@@ -135,8 +137,38 @@ public class Dictionary {
 
     }
 
+    public static void loadPreDictionary(String filePath){
+        String line;
+        try {
+            dictionaryFullPath = filePath;
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+
+            HashMap<String, DictionaryEntry> newDictionary = new HashMap<>();
+            while((line=reader.readLine())!=null){
+                String[] parts = line.split("#|:");
+                String key = parts[0];
+                newDictionary.put(key,new DictionaryEntry(Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),Double.parseDouble(parts[3]),Integer.parseInt(parts[4])));
+            }
+            reader.close();
+
+            preDictionary.clear();
+            preDictionary = newDictionary;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static double getWordIDF(String word){
         DictionaryEntry dEntry = md_Dictionary.get(word);
+        if (dEntry==null) return Math.log10(Parse.numberOfDocuments)/Math.log10(2);
+        return dEntry.idf;
+    }
+
+    public static double getWordPreIDF(String word){
+        DictionaryEntry dEntry = preDictionary.get(word);
         if (dEntry==null) return Math.log10(Parse.numberOfDocuments)/Math.log10(2);
         return dEntry.idf;
     }

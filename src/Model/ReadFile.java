@@ -12,7 +12,7 @@ public class ReadFile {
 
     public static String path = null;
     public static String postingsPath = null;
-    public static ArrayList<String> docBuffer = new ArrayList<>();
+    public static ArrayList<DocPair> docBuffer = new ArrayList<>();
     public static long globalTime = System.currentTimeMillis();
     public static String currentFileName = null;
 
@@ -60,7 +60,7 @@ public class ReadFile {
 
 
     private static void pushDoc(String doc) {
-        docBuffer.add(doc);
+        docBuffer.add(new DocPair(doc,currentFileName));
     }
 
     private static void flushDocumentsChunk() {

@@ -28,11 +28,13 @@ public class Parse {
 
     public static void parse(){
         parsedDocs.clear();
-        ArrayList<String> documents = ReadFile.docBuffer;
+        ArrayList<DocPair> documents = ReadFile.docBuffer;
 
-        for (String unparsedDoc : documents){
+        for (int r=0; r<documents.size(); r++){
 
-            Document docObj = createDoc(unparsedDoc);
+            String unparsedDoc = documents.get(r).unparsedText;
+
+            Document docObj = createDoc(documents.get(r));
             String unparsedText = unparsedDoc.split("<TEXT>")[1].split("</TEXT>")[0].trim();
 
             unparsedText = unparsedText.replaceAll("\\<[^>]*>","");
@@ -274,9 +276,10 @@ public class Parse {
         consecutiveCapitals=0;
     }
 
-    public static Document createDoc(String unparsedDoc){
+    public static Document createDoc(DocPair dPair){
         Document doc = new Document();
-        String[] aux = unparsedDoc.split("<DOCNO>")[1].split("</DOCNO>");
+        String[] aux = dPair.unparsedText.split("<DOCNO>")[1].split("</DOCNO>");
+        doc.folderName = dPair.docFolderName;
         String docID = aux[0].trim();
 
         doc.setDocID(docID);
