@@ -267,8 +267,8 @@ public class Controller {
 //    }
 
     public void test2(ActionEvent actionEvent){
-        Document.loadDocumentsFile();
-        System.out.println("succeeded");
+        boolean success = Document.loadDocumentsFile();
+        System.out.println(success?"succeeded":"failed");
     }
 
     public void test1(ActionEvent event){
@@ -278,9 +278,11 @@ public class Controller {
     }
 
     public void test3(ActionEvent event){
-        String str = "5.882643049361842";
-        double x = Double.parseDouble(str);
-        System.out.println(x);
+        HashMap<String, MyPair> map = Ranker.getPostingData("israel");
+        map.keySet().stream().forEach((str)->{
+            System.out.printf("DocID: %s - TF: %d - IndexInDoc: %d", str, map.get(str).getTf(), map.get(str).getIdxInDoc());
+        });
+        System.out.println("Success");
     }
 
 

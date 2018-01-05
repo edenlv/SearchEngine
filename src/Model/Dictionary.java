@@ -169,7 +169,10 @@ public class Dictionary {
 
     public static double getWordPreIDF(String word){
         DictionaryEntry dEntry = preDictionary.get(word);
+
+        //for words in the posting but arent in the dictionary
         if (dEntry==null) return Math.log10(Parse.numberOfDocuments)/Math.log10(2);
+
         return dEntry.idf;
     }
 

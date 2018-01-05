@@ -3,25 +3,25 @@ package Model;
 import java.io.Serializable;
 
 public class MyPair implements Serializable {
-    public int df;
+    public int tf;
     public int idxInDoc;
 
     public MyPair(){
-        this.df = 0;
+        this.tf = 0;
         this.idxInDoc = 0;
     }
 
-    public MyPair(int df, int idxInDoc) {
-        this.df = df;
+    public MyPair(int tf, int idxInDoc) {
+        this.tf = tf;
         this.idxInDoc = idxInDoc;
     }
 
-    public int getDf() {
-        return df;
+    public int getTf() {
+        return tf;
     }
 
-    public void setDf(int df) {
-        this.df = df;
+    public void setTf(int tf) {
+        this.tf = tf;
     }
 
     public int getIdxInDoc() {
@@ -32,7 +32,7 @@ public class MyPair implements Serializable {
         this.idxInDoc = idxInDoc;
     }
 
-    public void incrementDF(){
-        this.df += 1;
+    public void incrementTF(){
+        this.tf += 1;
     }
 }

@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="600.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller">
+<BorderPane minHeight="600.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller">
    <top>
        <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
            <children>
@@ -97,7 +97,12 @@
                      <Insets left="20.0" />
                   </HBox.margin>
                </Button>
-               <Button fx:id="btn_reset1" alignment="CENTER" contentDisplay="CENTER" layoutX="495.0" layoutY="10.0" onAction="#test1" prefHeight="50" prefWidth="100.0" text="test1" textAlignment="CENTER">
+               <Button fx:id="btn_reset1" alignment="CENTER" contentDisplay="CENTER" layoutX="495.0" layoutY="10.0" onAction="#test3" prefHeight="50" prefWidth="100.0" text="test1" textAlignment="CENTER">
+                  <font>
+                     <Font name="System Bold" size="18.0" />
+                  </font>
+               </Button>
+               <Button fx:id="btn_reset11" alignment="CENTER" contentDisplay="CENTER" layoutX="545.0" layoutY="10.0" onAction="#test2" prefHeight="50" prefWidth="100.0" text="test2" textAlignment="CENTER">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>

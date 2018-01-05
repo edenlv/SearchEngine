@@ -1,12 +1,8 @@
 package Model;
 
-import javafx.util.Pair;
-
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class Document implements Serializable{
     public static HashMap<String, Document> documentsCollection = new HashMap<>();
@@ -40,7 +36,7 @@ public class Document implements Serializable{
         int val = 1;
 
         if (hMap.containsKey(term)) {
-            hMap.get(term).incrementDF();
+            hMap.get(term).incrementTF();
         } else {
             hMap.put(term, new MyPair(val,this.documentLength));
             this.uniqueTermsCounter++;
@@ -73,7 +69,7 @@ public class Document implements Serializable{
 
     public double getWordWeight(String word){
         double idf = Dictionary.getWordPreIDF(word);
-        double normalTF = hMap.get(word).getDf()/this.mostFrequentTermValue;
+        double normalTF = hMap.get(word).getTf()/this.mostFrequentTermValue;
         return normalTF*idf;
     }
 
@@ -101,7 +97,7 @@ public class Document implements Serializable{
         try {
             String filePath = ReadFile.postingsPath+"\\DocumentsCollection" + ((Parse.toStem) ? "_WithStem" : "") + ".txt";
             ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath));
-            HashMap<String, Document> map = (HashMap<String, Document>) input.readObject();
+            Document.documentsCollection = (HashMap<String, Document>) input.readObject();
         } catch (Exception e) {return false;}
 
         return true;

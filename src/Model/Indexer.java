@@ -1,13 +1,7 @@
 package Model;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.DecimalFormat;
 import java.util.*;
-import java.util.Dictionary;
-import java.util.stream.Stream;
 
 public class Indexer {
     public static HashMap<String, StringBuilder> currentTermsDictionary = new HashMap<>();
@@ -38,7 +32,7 @@ public class Indexer {
                 if (sb.length()!=0) sb.append(",");
                 sb.append(d.docID);
                 sb.append(":");
-                sb.append(d.hMap.get(term).getDf());
+                sb.append(d.hMap.get(term).getTf());
                 sb.append(":");
                 sb.append(d.hMap.get(term).getIdxInDoc());
 
@@ -161,6 +155,9 @@ public class Indexer {
         return new File(postingFilePath).length();
     }
 
+    public static String getPostingFilePath(){
+        return postingFilePath==null? ReadFile.postingsPath + "\\" + "PostingFile" + ((Parse.toStem) ? "_WithStem" : "") + ".txt" : postingFilePath;
+    }
 
 
 
