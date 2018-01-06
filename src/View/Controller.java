@@ -278,7 +278,7 @@ public class Controller {
     }
 
     public void test3(ActionEvent event){
-        HashMap<String, MyPair> map = Ranker.getPostingData("israel");
+        HashMap<String, MyPair> map = Ranker.getPostingData(24653);
         map.keySet().stream().forEach((str)->{
             System.out.printf("DocID: %s - TF: %d - IndexInDoc: %d", str, map.get(str).getTf(), map.get(str).getIdxInDoc());
         });

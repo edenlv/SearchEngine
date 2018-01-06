@@ -1,5 +1,8 @@
 package Model;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 public class CacheEntry {
     public String term;
     public int postingLine;
@@ -24,6 +27,17 @@ public class CacheEntry {
         return this.term + "#" + this.postingLine + "#" + this.data;
     }
 
+    public static void main (String[] args){
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(5);
+        list.add(1);
+        list.add(9);
+        list.add(4);
+        list.add(2);
+        list.add(8);
+
+        list.stream().sorted().forEach(System.out::println);
+    }
 
 
 }

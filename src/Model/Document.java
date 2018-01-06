@@ -15,6 +15,7 @@ public class Document implements Serializable{
     public int mostFrequentTermValue;
     public double docVectorSize;
     public String folderName;
+    public String title;
 
     public Document(){
         this.hMap = new HashMap<String, MyPair>();
@@ -48,6 +49,27 @@ public class Document implements Serializable{
         }
 
         this.documentLength++;
+    }
+
+    public void addLongTermToDic(String longTerm){
+        longTerm = longTerm.toLowerCase();
+        longTerm = Parse.StemWord(longTerm);
+        int aux = longTerm.indexOf(" ");
+        String firstTerm = longTerm.substring(0,aux);
+
+        int val = 1;
+
+        if (hMap.containsKey(longTerm)) {
+            hMap.get(longTerm).incrementTF();
+        } else {
+            hMap.put(longTerm, new MyPair(val,hMap.get(firstTerm).getIdxInDoc()));
+            this.uniqueTermsCounter++;
+        }
+
+        if (val > mostFrequentTermValue) {
+            mostFrequentTermValue = val;
+            mostFrequentTerm = longTerm;
+        }
     }
 
     public static long getNumberOfDocuments(){
@@ -103,6 +125,8 @@ public class Document implements Serializable{
         return true;
     }
 
+    public static Document get(String docID){return documentsCollection.get(docID);}
+
     public String getDocID() {
         return docID;
     }
@@ -153,5 +177,21 @@ public class Document implements Serializable{
 
     public void setDocVectorSize(double docVectorSize) {
         this.docVectorSize = docVectorSize;
+    }
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

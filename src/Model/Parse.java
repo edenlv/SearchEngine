@@ -13,6 +13,7 @@ public class Parse {
 
     public static ArrayList<Document> parsedDocs = new ArrayList<>();
     public static boolean toStem = false;
+    public static boolean queryParsing = true;
     public static final Stemmer STEMMER = new Stemmer();
     public static HashSet<Character> whiteSpaces = _initWhiteSpaces();
     public static final HashSet<String> stopWords = _initStopwordsTable();
@@ -35,8 +36,10 @@ public class Parse {
             String unparsedDoc = documents.get(r).unparsedText;
 
             Document docObj = createDoc(documents.get(r));
-            String unparsedText = unparsedDoc.split("<TEXT>")[1].split("</TEXT>")[0].trim();
-
+            String unparsedText = unparsedDoc;
+            if (!queryParsing) {
+                unparsedText = unparsedDoc.split("<TEXT>")[1].split("</TEXT>")[0].trim();
+            }
             unparsedText = unparsedText.replaceAll("\\<[^>]*>","");
 
             if (unparsedText.equals("")) continue;
@@ -77,8 +80,6 @@ public class Parse {
                         //6.21 percentage
                         if (i+1<unparsedWords.length){
                             String secondCleanWord = cleanWord(unparsedWords[i+1]);
-//                            if (secondCleanWord=="" || secondCleanWord.length()==0 || stopWords.contains(secondCleanWord.toLowerCase()))
-//                                continue;
 
                             if (secondCleanWord.intern()=="percent".intern() || secondCleanWord.intern()=="percentage".intern()){
                                 term = num + " percent";
@@ -113,9 +114,6 @@ public class Parse {
                         if (i+1<unparsedWords.length){
                             String secondCleanWord = cleanWord(unparsedWords[i+1]);
 
-//                            if (secondCleanWord=="" || secondCleanWord.length()==0 || stopWords.contains(secondCleanWord.toLowerCase()))
-//                                continue;
-
                             if (secondCleanWord.intern()=="percent".intern() || secondCleanWord.intern()=="percentage".intern()){
                                 term = cleanWord + " percent";
                                 i++;
@@ -142,9 +140,6 @@ public class Parse {
                                 if (month != null) {
                                     if (i + 2 < unparsedWords.length) {
                                         String thirdCleanWord = cleanWord(unparsedWords[i + 2]);
-
-//                                        if (thirdCleanWord=="" || thirdCleanWord.length()==0 || stopWords.contains(thirdCleanWord.toLowerCase()))
-//                                            continue;
 
                                         if (Parse.currentType == ContentType.INTEGER && (thirdCleanWord.length() == 4 || thirdCleanWord.length() == 2)) {
                                             if (thirdCleanWord.length()==2){
@@ -244,12 +239,6 @@ public class Parse {
                         }
                     }
 
-//                    if (firstWordType==ContentType.AB){
-//                        if (cleanWord.equals("kilometers") || cleanWord.equals("meters")){
-//                            String prevCleanWord = cleanWord(unparsedWords[i-1]);
-//                        }
-//                    }
-
                     break;
                 }
 
@@ -265,25 +254,38 @@ public class Parse {
         }
 
 
-        Indexer.createDicFromParsedDocs();
+        if (!queryParsing) Indexer.createDicFromParsedDocs();
     }
 
 
     public static void flushUppercaseString(Document docObj){
         if (consecutiveCapitals<2 || uppercaseLongTerm.length()==0) return;
-        docObj.addToDic(uppercaseLongTerm.toString().toLowerCase());
+        docObj.addLongTermToDic(uppercaseLongTerm.toString());
         uppercaseLongTerm.setLength(0);
         consecutiveCapitals=0;
     }
 
     public static Document createDoc(DocPair dPair){
         Document doc = new Document();
-        String[] aux = dPair.unparsedText.split("<DOCNO>")[1].split("</DOCNO>");
-        doc.folderName = dPair.docFolderName;
-        String docID = aux[0].trim();
+        if (!queryParsing) {
+            String[] aux = dPair.unparsedText.split("<DOCNO>")[1].split("</DOCNO>");
+            doc.folderName = dPair.docFolderName;
+            String docID = aux[0].trim();
 
-        doc.setDocID(docID);
+            doc.setDocID(docID);
 
+            if (docID.startsWith("LA")) {
+                String hlText = dPair.unparsedText.split("<HEADLINE>")[1].split("</HEADLINE>")[0];
+                hlText = hlText.replaceAll("<P>|</P>", "");
+
+            } else if (docID.startsWith("FT")) {
+                String hlText = dPair.unparsedText.split("<HEADLINE>")[1].split("</HEADLINE>")[0];
+                hlText = hlText.replace("FT", "");
+
+            } else if (docID.startsWith("FB")) {
+                String hlText = dPair.unparsedText.split("<TI>")[1].split("</TI>")[0];
+            }
+        }
         return doc;
     }
 
@@ -436,7 +438,7 @@ public class Parse {
                 System.out.println("exception");
             }
         } else {
-            View.Controller.noStopwordsFile();
+            if (!queryParsing) View.Controller.noStopwordsFile();
         }
         System.out.println("Loaded stop words into HashSet in " + (System.currentTimeMillis()-start) +"[ms]");
         return stopWords;
