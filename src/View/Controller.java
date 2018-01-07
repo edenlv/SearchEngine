@@ -224,7 +224,7 @@ public class Controller {
 
         if (null!=f) {
             File[] subfiles = f.listFiles(File::isFile);
-            boolean foundCache = false, foundDic = false;
+            boolean foundCache = false, foundDic = false, foundDocCollection = false;
             for (int i=0; i<subfiles.length; i++){
                 File file = subfiles[i];
 
@@ -236,10 +236,13 @@ public class Controller {
                     foundDic = true;
                 } else if (file.getName().startsWith("Documents") && ((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))){
                     Document.loadDocumentsCollection(file.getAbsolutePath());
+                    foundDocCollection = true;
                 }
             }
 
-            if (!foundCache || !foundDic){
+            System.out.println("success");
+
+            if (!foundDocCollection || !foundDic){
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Couldn't find files! They must be named according to your stemming checkbox and start with \"Dictionary\" or \"Cache\"!");
                 alert.show();

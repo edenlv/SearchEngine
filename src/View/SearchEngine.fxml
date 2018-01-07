@@ -97,7 +97,7 @@
                      <Insets left="20.0" />
                   </HBox.margin>
                </Button>
-               <Button fx:id="btn_reset1" alignment="CENTER" contentDisplay="CENTER" layoutX="495.0" layoutY="10.0" onAction="#test4" prefHeight="50" prefWidth="100.0" text="test1" textAlignment="CENTER">
+               <Button fx:id="btn_reset1" alignment="CENTER" contentDisplay="CENTER" layoutX="495.0" layoutY="10.0" onAction="#test1" prefHeight="50" prefWidth="100.0" text="test1" textAlignment="CENTER">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>

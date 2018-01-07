@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class Document implements Serializable{
+    private static final long serialVersionUID = 1L;
     public static HashMap<String, Document> documentsCollection = new HashMap<>();
 
     public HashMap<String, MyPair> hMap;
@@ -124,6 +125,7 @@ public class Document implements Serializable{
             String filePath = ReadFile.postingsPath+"\\DocumentsCollection" + ((Parse.toStem) ? "_WithStem" : "") + ".txt";
             ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath));
             Document.documentsCollection = (HashMap<String, Document>) input.readObject();
+            input.close();
         } catch (Exception e) {return false;}
 
         return true;
