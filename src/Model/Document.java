@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class Document implements Serializable{
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -8178667157127751118L;
     public static HashMap<String, Document> documentsCollection = new HashMap<>();
 
     public HashMap<String, MyPair> hMap;
