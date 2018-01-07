@@ -75,6 +75,7 @@ public class Controller {
         showWaitMessage(true);
 
         Indexer.fileCounter = 0;
+        Parse.queryParsing = false;
         long start = System.currentTimeMillis();
 
         ReadFile.start();

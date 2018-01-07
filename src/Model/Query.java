@@ -9,7 +9,9 @@ import java.util.HashMap;
 public class Query {
 
     ArrayList<String> parsedQuery;
-    int[] postLinesNeeded;
+    Integer[] postLinesNeeded;
     HashMap<String, HashMap<String, MyPair>> postingLines; //key=term, hashmap=data(key=docID, mypair=tf:idx)
+
+
 
 }

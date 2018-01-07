@@ -14,11 +14,12 @@ import java.util.stream.Stream;
  */
 public class Searcher {
     public static HashMap<Integer, String> postingLinesCache = new HashMap<>();
+    public static ArrayList<Query> Queries;
 
-    public static void setQueries(ArrayList<String> queries){
+    public static void setQueries(ArrayList<String> qries){
         ArrayList<Integer> postLinesToRead = new ArrayList<>();
 
-        queries.stream().forEach(
+        qries.stream().forEach(
                 (query) -> {
                     ArrayList<String> parsedQuery = getParsedQuery(query);
                     ArrayList<Integer> neededLines = new ArrayList<>();
@@ -26,11 +27,18 @@ public class Searcher {
                         int line = Dictionary.md_Dictionary.get(term).postingLine;
                         neededLines.add(line);
                     });
+
                     postLinesToRead.addAll(neededLines);
+
+                    Query qry = new Query();
+                    qry.parsedQuery = parsedQuery;
+                    qry.postLinesNeeded = new Integer[neededLines.size()];
+                    neededLines.toArray(qry.postLinesNeeded);
+                    Queries.add(qry);
                 }
         );
 
-        try (Stream<String> lines = Files.lines(Paths.get("file.txt"))) {
+        try (Stream<String> lines = Files.lines(Paths.get(Indexer.getPostingFilePath()))) {
             int lastLine = 0;
 
             postLinesToRead.sort(Comparator.naturalOrder());
@@ -48,7 +56,18 @@ public class Searcher {
             System.out.println("Couldn't read posting file.");
         }
 
+        Queries.stream().forEach(
+                (query) -> {
+                    for(int i=0;i<query.postLinesNeeded.length;i++){
+                        String postline = postingLinesCache.get(query.postLinesNeeded[i]);
 
+                        PostingEntry pEntry = processPostingLine(postline);
+
+                        query.postingLines.put(pEntry.term,pEntry.data);
+
+                    }
+                }
+        );
     }
 
 
@@ -68,7 +87,7 @@ public class Searcher {
     }
 
 
-    public static HashMap<String, MyPair> processPostingLine(String postingLine){
+    public static PostingEntry processPostingLine(String postingLine){
         HashMap<String, MyPair> data = new HashMap<>();
 
         String[] splitData = postingLine.split("#|,");
@@ -80,7 +99,9 @@ public class Searcher {
             data.put(aux[0], pair);
         }
 
-        return data;
+        PostingEntry pEntry = new PostingEntry(splitData[0],data);
+
+        return pEntry;
     }
 
 

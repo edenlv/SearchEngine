@@ -58,14 +58,18 @@ public class Document implements Serializable{
         String firstTerm = longTerm.substring(0,aux);
 
         int val = 1;
-
         if (hMap.containsKey(longTerm)) {
             hMap.get(longTerm).incrementTF();
         } else {
-            hMap.put(longTerm, new MyPair(val,hMap.get(firstTerm).getIdxInDoc()));
-            this.uniqueTermsCounter++;
+            MyPair firstTermPair = hMap.get(firstTerm);
+            if (firstTermPair==null){
+                hMap.put(longTerm,new MyPair(val,this.documentLength++));
+            } else {
+                hMap.put(longTerm,new MyPair(val,firstTermPair.getIdxInDoc()));
+            }
+//            hMap.put(longTerm, new MyPair(val, hMap.get(firstTerm).getIdxInDoc()));
+//               this.uniqueTermsCounter++;
         }
-
         if (val > mostFrequentTermValue) {
             mostFrequentTermValue = val;
             mostFrequentTerm = longTerm;
