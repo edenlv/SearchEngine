@@ -14,7 +14,9 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("SearchEngine.fxml"));
         primaryStage.setTitle("Information Retrieval - Search Engine by Eden & Yakov");
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1000, 900);
+        root.requestFocus();
+
         primaryStage.setScene(scene);
         scene.getStylesheets().add(new File("src/View/style.css").toURI().toURL().toExternalForm());
         primaryStage.show();

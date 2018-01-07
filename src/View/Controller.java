@@ -256,6 +256,38 @@ public class Controller {
         alert.show();
     }
 
+    public void loadDictionaryAndDocCollection(ActionEvent event){
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Choose folder directory");
+
+        File f = dirChooser.showDialog(null);
+
+        if (null!=f) {
+            File[] subfiles = f.listFiles(File::isFile);
+            boolean foundDic = false, foundDocCollection = false;
+            for (int i=0; i<subfiles.length; i++){
+                File file = subfiles[i];
+                if (((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))) {
+                    if (file.getName().startsWith("Dictionary")) {
+                        Dictionary.loadDictionary(file.getAbsolutePath());
+                        foundDic = true;
+                    } else if (file.getName().startsWith("Documents")) {
+                        Document.loadDocumentsCollection(file.getAbsolutePath());
+                        foundDocCollection = true;
+                    }
+                }
+            }
+
+            System.out.println("success");
+
+            if (!foundDocCollection || !foundDic){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Couldn't find files! They must be named according to your stemming checkbox and start with \"Dictionary\" or \"DocumentsCollection\"!");
+                alert.show();
+            }
+        }
+    }
+
 
 
 //    public void test(ActionEvent actionEvent){
@@ -279,7 +311,7 @@ public class Controller {
         System.out.println(success?"succeeded":"failed");
     }
 
-    public void test1(ActionEvent event){
+    public void writeDocCollectionToFile(ActionEvent event){
         //Document.computeAllDocVectorSizes();
         Document.writeCollectionToFile();
         System.out.println("success");

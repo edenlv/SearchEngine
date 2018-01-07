@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="600.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller">
+<BorderPane minHeight="600.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller">
    <top>
        <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
            <children>
@@ -83,6 +83,61 @@
             </HBox>
 
             <HBox alignment="CENTER" layoutX="10.0" layoutY="385.0" minHeight="50.0" minWidth="120.0">
+            <children>
+            <Button alignment="CENTER" contentDisplay="CENTER" onAction="#onStartIndexing" prefHeight="50" prefWidth="250.0" text="Do something 1" textAlignment="CENTER">
+                <font>
+                    <Font name="System Bold" size="18.0" />
+                </font>
+                  <HBox.margin>
+                     <Insets left="20.0" />
+                  </HBox.margin>
+            </Button>
+            </children>
+                <VBox.margin>
+                    <Insets top="20.0" />
+                </VBox.margin>
+            </HBox>
+
+            <HBox alignment="CENTER" layoutX="10.0" layoutY="385.0" minHeight="50.0" minWidth="120.0">
+                <children>
+
+                    <Button alignment="CENTER" contentDisplay="CENTER" layoutX="495.0" layoutY="10.0" onAction="#writeDocCollectionToFile" prefHeight="50" prefWidth="192.0" text="Save DocCollection" textAlignment="CENTER">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                  <HBox.margin>
+                     <Insets right="20.0" />
+                  </HBox.margin>
+                    </Button>
+                    <Button alignment="CENTER" contentDisplay="CENTER" layoutX="545.0" layoutY="10.0" onAction="#loadDictionaryAndDocCollection" prefHeight="50" prefWidth="306.0" text="Load Dictionary &amp; Doc Collection" textAlignment="CENTER">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                    </Button>
+            <Button fx:id="btn_loadPreDictionary" alignment="CENTER" contentDisplay="CENTER" onAction="#onLoadDictionary" prefHeight="50" prefWidth="234.0" text="Load Prerun Dictionary" textAlignment="CENTER">
+                <font>
+                    <Font name="System Bold" size="18.0" />
+                </font>
+                  <HBox.margin>
+                     <Insets left="20.0" />
+                  </HBox.margin>
+            </Button>
+                </children>
+
+
+                <VBox.margin>
+                    <Insets top="20.0" />
+                </VBox.margin>
+            </HBox>
+
+
+         <Separator minHeight="10.0" prefHeight="3.0" prefWidth="200.0" style="-fx-background-color: #dddddd;">
+            <VBox.margin>
+               <Insets top="20.0" />
+            </VBox.margin>
+         </Separator>
+
+            <HBox alignment="CENTER" layoutX="10.0" layoutY="385.0" minHeight="50.0" minWidth="120.0">
                 <children>
                     <Button fx:id="btn_createIndex" alignment="CENTER" contentDisplay="CENTER" onAction="#onStartIndexing" prefHeight="50" prefWidth="250.0" text="Create Inverted Index!" textAlignment="CENTER">
                         <font>
@@ -97,16 +152,6 @@
                      <Insets left="20.0" />
                   </HBox.margin>
                </Button>
-               <Button fx:id="btn_reset1" alignment="CENTER" contentDisplay="CENTER" layoutX="495.0" layoutY="10.0" onAction="#test1" prefHeight="50" prefWidth="100.0" text="test1" textAlignment="CENTER">
-                  <font>
-                     <Font name="System Bold" size="18.0" />
-                  </font>
-               </Button>
-               <Button fx:id="btn_reset11" alignment="CENTER" contentDisplay="CENTER" layoutX="545.0" layoutY="10.0" onAction="#test2" prefHeight="50" prefWidth="198.0" text="load doc collection" textAlignment="CENTER">
-                  <font>
-                     <Font name="System Bold" size="18.0" />
-                  </font>
-               </Button>
                 </children>
 
 
@@ -114,11 +159,6 @@
                     <Insets top="20.0" />
                 </VBox.margin>
             </HBox>
-         <Separator minHeight="10.0" prefHeight="3.0" prefWidth="200.0" style="-fx-background-color: #dddddd;">
-            <VBox.margin>
-               <Insets top="20.0" />
-            </VBox.margin>
-         </Separator>
 
             <HBox alignment="CENTER" layoutX="10.0" layoutY="385.0" minHeight="50.0" minWidth="120.0" styleClass="topBorder">
                 <children>
@@ -134,14 +174,6 @@
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>
-               </Button>
-               <Button fx:id="btn_loadPreDictionary" alignment="CENTER" contentDisplay="CENTER" layoutX="420.0" layoutY="10.0" onAction="#onLoadDictionary" prefHeight="50" prefWidth="234.0" text="Load Prerun Dictionary" textAlignment="CENTER">
-                  <font>
-                     <Font name="System Bold" size="18.0" />
-                  </font>
-                  <HBox.margin>
-                     <Insets left="20.0" />
-                  </HBox.margin>
                </Button>
                 </children>
 
