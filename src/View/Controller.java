@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static Model.Document.documentsCollection;
@@ -226,12 +227,15 @@ public class Controller {
             boolean foundCache = false, foundDic = false;
             for (int i=0; i<subfiles.length; i++){
                 File file = subfiles[i];
+
                 if (file.getName().startsWith("Cache") && ((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))) {
-                        Cache.loadCache(file.getAbsolutePath());
-                        foundCache = true;
+                    Cache.loadCache(file.getAbsolutePath());
+                    foundCache = true;
                 } else if (file.getName().startsWith("Dictionary") && ((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))) {
-                        Dictionary.loadDictionary(file.getAbsolutePath());
-                        foundDic = true;
+                    Dictionary.loadDictionary(file.getAbsolutePath());
+                    foundDic = true;
+                } else if (file.getName().startsWith("Documents") && ((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))){
+                    Document.loadDocumentsCollection(file.getAbsolutePath());
                 }
             }
 
@@ -284,6 +288,12 @@ public class Controller {
             System.out.printf("DocID: %s - TF: %d - IndexInDoc: %d", str, map.get(str).getTf(), map.get(str).getIdxInDoc());
         });
         System.out.println("Success");
+    }
+
+    public void test4(ActionEvent event){
+        ArrayList<String> qry = new ArrayList<String>();
+        qry.add("dog cat");
+        Searcher.setQueries(qry);
     }
 
 

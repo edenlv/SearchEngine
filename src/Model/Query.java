@@ -12,6 +12,10 @@ public class Query {
     Integer[] postLinesNeeded;
     HashMap<String, HashMap<String, MyPair>> postingLines; //key=term, hashmap=data(key=docID, mypair=tf:idx)
 
+    public Query(){
+        postingLines = new HashMap<>();
+    }
+
 
 
 }

@@ -14,9 +14,12 @@ import java.util.stream.Stream;
  */
 public class Searcher {
     public static HashMap<Integer, String> postingLinesCache = new HashMap<>();
-    public static ArrayList<Query> Queries;
+    public static ArrayList<Query> Queries = new ArrayList<Query>();
 
     public static void setQueries(ArrayList<String> qries){
+        postingLinesCache.clear();
+        Queries.clear();
+
         ArrayList<Integer> postLinesToRead = new ArrayList<>();
 
         qries.stream().forEach(
@@ -24,8 +27,12 @@ public class Searcher {
                     ArrayList<String> parsedQuery = getParsedQuery(query);
                     ArrayList<Integer> neededLines = new ArrayList<>();
                     parsedQuery.forEach( (term) ->{
-                        int line = Dictionary.md_Dictionary.get(term).postingLine;
-                        neededLines.add(line);
+                        DictionaryEntry dEntry = Dictionary.md_Dictionary.get(term);
+                        if (dEntry==null) {parsedQuery.remove(term);} //if the word in the parsed query is not in the dictionary...
+                        else {
+                            int line = dEntry.postingLine;
+                            neededLines.add(line);
+                        }
                     });
 
                     postLinesToRead.addAll(neededLines);
@@ -38,22 +45,10 @@ public class Searcher {
                 }
         );
 
-        try (Stream<String> lines = Files.lines(Paths.get(Indexer.getPostingFilePath()))) {
-            int lastLine = 0;
-
-            postLinesToRead.sort(Comparator.naturalOrder());
-
-            for (int lineNumber : postLinesToRead){
-                if (postingLinesCache.containsKey(lineNumber)) continue;
-
-                String currentLine = lines.skip(lineNumber - lastLine).findFirst().get();
-                postingLinesCache.put(lineNumber, currentLine);
-                lastLine = lineNumber;
-            }
-
-        } catch (IOException e){
-            e.printStackTrace();
-            System.out.println("Couldn't read posting file.");
+        for (int k=0; k<postLinesToRead.size(); k++){
+            if (postingLinesCache.containsKey(postLinesToRead.get(k))) continue;
+            String line = getLineFromPostingFile(postLinesToRead.get(k));
+            postingLinesCache.put(postLinesToRead.get(k), line);
         }
 
         Queries.stream().forEach(
@@ -68,8 +63,8 @@ public class Searcher {
                     }
                 }
         );
+        System.out.println("Success");
     }
-
 
 
     public static ArrayList<String> getParsedQuery(String query){
@@ -91,7 +86,7 @@ public class Searcher {
         HashMap<String, MyPair> data = new HashMap<>();
 
         String[] splitData = postingLine.split("#|,");
-        System.out.printf("Read posting line number %d of term %s\n", postingLine, splitData[0]);
+//        System.out.printf("Read posting line number %d of term %s\n", postingLine, splitData[0]);
 
         for (int i = 1; i < splitData.length; i++) {
             String[] aux = splitData[i].split(":");
@@ -102,6 +97,15 @@ public class Searcher {
         PostingEntry pEntry = new PostingEntry(splitData[0],data);
 
         return pEntry;
+    }
+
+    public static String getLineFromPostingFile(int lineNumber){
+        try (Stream<String> lines = Files.lines(Paths.get(Indexer.getPostingFilePath()))) {
+            return lines.skip(lineNumber).findFirst().get();
+        } catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

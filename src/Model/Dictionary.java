@@ -122,7 +122,7 @@ public class Dictionary {
             while((line=reader.readLine())!=null){
                 String[] parts = line.split("#|:");
                 String key = parts[0];
-                newDictionary.put(key,new DictionaryEntry(Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),Integer.parseInt(parts[3])));
+                newDictionary.put(key,new DictionaryEntry(Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),Double.parseDouble(parts[3]),Integer.parseInt(parts[4])));
             }
             reader.close();
 

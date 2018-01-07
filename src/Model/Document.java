@@ -129,6 +129,16 @@ public class Document implements Serializable{
         return true;
     }
 
+    public static void loadDocumentsCollection(String path){
+        try {
+            String filePath = path;
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath));
+            Document.documentsCollection = (HashMap<String, Document>) input.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static Document get(String docID){return documentsCollection.get(docID);}
 
     public String getDocID() {

@@ -273,17 +273,25 @@ public class Parse {
             String docID = aux[0].trim();
 
             doc.setDocID(docID);
+            try {
+                if (docID.startsWith("LA")) {
+                    String hlText = dPair.unparsedText.split("<HEADLINE>")[1].split("</HEADLINE>")[0];
+                    hlText = hlText.replaceAll("<P>|</P>", "");
+                    doc.title = hlText.trim();
 
-            if (docID.startsWith("LA")) {
-                String hlText = dPair.unparsedText.split("<HEADLINE>")[1].split("</HEADLINE>")[0];
-                hlText = hlText.replaceAll("<P>|</P>", "");
+                } else if (docID.startsWith("FT")) {
+                    String hlText = dPair.unparsedText.split("<HEADLINE>")[1].split("</HEADLINE>")[0];
+                    hlText = hlText.replace("FT", "");
+                    doc.title = hlText.trim();
 
-            } else if (docID.startsWith("FT")) {
-                String hlText = dPair.unparsedText.split("<HEADLINE>")[1].split("</HEADLINE>")[0];
-                hlText = hlText.replace("FT", "");
+                } else if (docID.startsWith("FB")) {
+                    String hlText = dPair.unparsedText.split("<TI>")[1].split("</TI>")[0];
+                    doc.title = hlText.trim();
+                }
 
-            } else if (docID.startsWith("FB")) {
-                String hlText = dPair.unparsedText.split("<TI>")[1].split("</TI>")[0];
+            }
+            catch(Exception e){
+//                e.printStackTrace();
             }
         }
         return doc;
@@ -349,6 +357,18 @@ public class Parse {
 
     public static String StemWord(String word){
         if (toStem){
+            if (word.indexOf(" ")!=-1){
+                String[] split = word.split(" ");
+                String finalAns = "";
+                for (String str : split){
+                    finalAns+=StemWord(str)+" ";
+                }
+                word = finalAns.trim();
+                String stemFromCache = stemCache.get(word);
+                if (stemFromCache!=null) return stemFromCache;
+                stemCache.put(word, word);
+                return word;
+            }
             String stemFromCache = stemCache.get(word);
             if (stemFromCache!=null) return stemFromCache;
             String newStem = STEMMER.stripAffixes(word);
