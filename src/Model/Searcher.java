@@ -16,11 +16,12 @@ public class Searcher {
     public static HashMap<Integer, String> postingLinesCache = new HashMap<>();
     public static ArrayList<Query> Queries = new ArrayList<Query>();
 
-    public static void setQueries(ArrayList<String> qries){
+    public static ArrayList<Ranker> setQueries(ArrayList<String> qries){
         postingLinesCache.clear();
         Queries.clear();
 
         ArrayList<Integer> postLinesToRead = new ArrayList<>();
+        ArrayList<Ranker> rankers = new ArrayList<Ranker>();
 
         qries.stream().forEach(
                 (query) -> {
@@ -42,6 +43,8 @@ public class Searcher {
                     qry.postLinesNeeded = new Integer[neededLines.size()];
                     neededLines.toArray(qry.postLinesNeeded);
                     Queries.add(qry);
+
+                    rankers.add(new Ranker(qry));
                 }
         );
 
@@ -63,7 +66,10 @@ public class Searcher {
                     }
                 }
         );
-        System.out.println("Success");
+
+
+        System.out.println("Setting queries completed");
+        return rankers;
     }
 
 
@@ -107,6 +113,8 @@ public class Searcher {
             return null;
         }
     }
+
+
 
 
 }

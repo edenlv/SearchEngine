@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="600.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller">
+<BorderPane minHeight="900.0" minWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller">
    <top>
        <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
            <children>
@@ -81,10 +81,74 @@
                <Insets top="20.0" />
             </VBox.margin>
             </HBox>
+         <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="228.0" minHeight="50.0" minWidth="120.0">
+            <padding>
+               <Insets left="70.0" />
+            </padding>
+            <children>
+               <Label prefHeight="50.0" text="Query:">
+                  <font>
+                     <Font name="System Bold" size="26.0" />
+                  </font>
+                  <HBox.margin>
+                     <Insets right="30.0" />
+                  </HBox.margin>
+               </Label>
+               <TextField prefHeight="50.0" prefWidth="600.0" />
+               <Button contentDisplay="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="100.0" text="Run">
+                  <font>
+                     <Font name="System Bold" size="22.0" />
+                  </font>
+                  <HBox.margin>
+                     <Insets left="20.0" />
+                  </HBox.margin>
+               </Button>
+            </children>
+            <VBox.margin>
+               <Insets top="20.0" />
+            </VBox.margin>
+         </HBox>
+         <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
+            <VBox.margin>
+               <Insets top="20.0" />
+            </VBox.margin>
+            <children>
+                <CheckBox minHeight="50.0" minWidth="200.0" mnemonicParsing="false" onAction="#onToggleStem" text="Extended Query">
+                    <font>
+                        <Font name="System Italic" size="18.0" />
+                    </font>
+                </CheckBox>
+                <CheckBox minHeight="50.0" minWidth="200.0" mnemonicParsing="false" onAction="#onToggleStem" text="Document Search">
+                    <font>
+                        <Font name="System Italic" size="18.0" />
+                    </font>
+                </CheckBox>
+            </children>
+         </HBox>
+         <HBox alignment="CENTER" minHeight="50.0" minWidth="120.0">
+            <children>
+               <Button fx:id="btn_qryBrowse" onAction="#onChooseDirectory" prefHeight="50" prefWidth="200.0" text="Queries File Path">
+                  <font>
+                     <Font name="System Bold" size="18.0" />
+                  </font>
+               </Button>
+               <TextField fx:id="qryFileInput" disable="true" minHeight="50.0" minWidth="500.0" promptText="Browse for your queries file..." style="-fx-opacity: 0.6;">
+                  <HBox.margin>
+                     <Insets left="20.0" />
+                  </HBox.margin>
+                  <font>
+                     <Font name="System Italic" size="18.0" />
+                  </font>
+               </TextField>
+            </children>
+            <VBox.margin>
+               <Insets top="20.0" />
+            </VBox.margin>
+         </HBox>
 
             <HBox alignment="CENTER" layoutX="10.0" layoutY="385.0" minHeight="50.0" minWidth="120.0">
             <children>
-            <Button alignment="CENTER" contentDisplay="CENTER" onAction="#onStartIndexing" prefHeight="50" prefWidth="250.0" text="Do something 1" textAlignment="CENTER">
+            <Button alignment="CENTER" contentDisplay="CENTER" onAction="#testQuery" prefHeight="50" prefWidth="250.0" text="Do something 1" textAlignment="CENTER">
                 <font>
                     <Font name="System Bold" size="18.0" />
                 </font>
@@ -162,7 +226,7 @@
 
             <HBox alignment="CENTER" layoutX="10.0" layoutY="385.0" minHeight="50.0" minWidth="120.0" styleClass="topBorder">
                 <children>
-                    <Button fx:id="btn_showDictionary" alignment="CENTER" contentDisplay="CENTER" onAction="#onOpenFile" prefHeight="50" prefWidth="200.0" text="Show Dictionary" textAlignment="CENTER">
+                    <Button fx:id="btn_showDictionary" alignment="CENTER" contentDisplay="CENTER" onAction="#onOpenFile" prefHeight="50" prefWidth="169.0" text="Show Dictionary" textAlignment="CENTER">
                         <font>
                             <Font name="System Bold" size="18.0" />
                         </font>
@@ -170,7 +234,20 @@
                      <Insets right="20.0" />
                   </HBox.margin>
                     </Button>
-               <Button fx:id="btn_showCache" alignment="CENTER" contentDisplay="CENTER" layoutX="310.0" layoutY="10.0" onAction="#onOpenFile" prefHeight="50" prefWidth="200.0" text="Show Cache" textAlignment="CENTER">
+               <Button fx:id="btn_showCache" alignment="CENTER" contentDisplay="CENTER" layoutX="310.0" layoutY="10.0" onAction="#onOpenFile" prefHeight="50" prefWidth="155.0" text="Show Cache" textAlignment="CENTER">
+                  <font>
+                     <Font name="System Bold" size="18.0" />
+                  </font>
+               </Button>
+               <Button alignment="CENTER" contentDisplay="CENTER" onAction="#onSaveDictionaryAndCache" prefHeight="50" prefWidth="250.0" text="Save Dictionary &amp; Cache" textAlignment="CENTER">
+                  <font>
+                     <Font name="System Bold" size="18.0" />
+                  </font>
+                  <HBox.margin>
+                     <Insets left="20.0" right="20.0" />
+                  </HBox.margin>
+               </Button>
+               <Button alignment="CENTER" contentDisplay="CENTER" onAction="#LoadDictionaryAndCacheFromFolder" prefHeight="50" prefWidth="250.0" text="Load Dictionary &amp; Cache" textAlignment="CENTER">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>
@@ -182,26 +259,6 @@
                     <Insets top="20.0" />
                 </VBox.margin>
             </HBox>
-         <HBox alignment="CENTER" layoutX="10.0" layoutY="440.0" minHeight="50.0" minWidth="120.0" styleClass="topBorder">
-            <children>
-               <Button alignment="CENTER" contentDisplay="CENTER" onAction="#onSaveDictionaryAndCache" prefHeight="50" prefWidth="250.0" text="Save Dictionary &amp; Cache" textAlignment="CENTER">
-                  <font>
-                     <Font name="System Bold" size="18.0" />
-                  </font>
-                  <HBox.margin>
-                     <Insets right="20.0" />
-                  </HBox.margin>
-               </Button>
-               <Button alignment="CENTER" contentDisplay="CENTER" layoutX="275.0" layoutY="10.0" onAction="#LoadDictionaryAndCacheFromFolder" prefHeight="50" prefWidth="250.0" text="Load Dictionary &amp; Cache" textAlignment="CENTER">
-                  <font>
-                     <Font name="System Bold" size="18.0" />
-                  </font>
-               </Button>
-            </children>
-            <VBox.margin>
-               <Insets top="20.0" />
-            </VBox.margin>
-         </HBox>
          <HBox alignment="CENTER" layoutX="10.0" layoutY="430.0" minHeight="50.0" minWidth="120.0" styleClass="topBorder" visible="false">
             <children>
                <Button alignment="CENTER" contentDisplay="CENTER" onAction="#onLoadDictionary" prefHeight="50" prefWidth="270.0" text="Load Dictionary (single file)" textAlignment="CENTER">

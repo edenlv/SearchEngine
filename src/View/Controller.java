@@ -318,11 +318,7 @@ public class Controller {
     }
 
     public void test3(ActionEvent event){
-        HashMap<String, MyPair> map = Ranker.getPostingData(24653);
-        map.keySet().stream().forEach((str)->{
-            System.out.printf("DocID: %s - TF: %d - IndexInDoc: %d", str, map.get(str).getTf(), map.get(str).getIdxInDoc());
-        });
-        System.out.println("Success");
+
     }
 
     public void test4(ActionEvent event){
@@ -331,6 +327,20 @@ public class Controller {
         Searcher.setQueries(qry);
     }
 
+    public void testQuery(ActionEvent event){
+        ArrayList<String> qries = new ArrayList<>();
+        qries.add("cat dog");
+
+        ArrayList<Ranker> rankers = Searcher.setQueries(qries);
+
+        for (int i=0; i<rankers.size(); i++){
+            rankers.get(i).runRanking();
+            rankers.get(i).printResults();
+        }
+
+        rankers.stream().forEach((ranker)->{ranker.printResults();});
+
+    }
 
 
 
