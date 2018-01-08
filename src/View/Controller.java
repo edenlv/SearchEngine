@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -34,6 +35,9 @@ public class Controller {
     public Button btn_loadPreDictionary;
     public long programRunTimeInSeconds;
     public Alert waitAlert;
+    public Button btn_qryBrowse;
+    public TextField queryFileInput;
+    private String queryFilePath;
 
     public void onChooseDirectory(ActionEvent event){
         DirectoryChooser dirChooser = new DirectoryChooser();
@@ -322,25 +326,69 @@ public class Controller {
     }
 
     public void test4(ActionEvent event){
-        ArrayList<String> qry = new ArrayList<String>();
-        qry.add("dog cat");
-        Searcher.setQueries(qry);
+
+    }
+
+    public void runQueryFile(ActionEvent event){
+        ArrayList<PreQuery> preQueries = parseQueryFile(queryFilePath);
+
+
     }
 
     public void testQuery(ActionEvent event){
-        ArrayList<String> qries = new ArrayList<>();
-        qries.add("cat dog");
-
-        ArrayList<Ranker> rankers = Searcher.setQueries(qries);
-
-        for (int i=0; i<rankers.size(); i++){
-            rankers.get(i).runRanking();
-            rankers.get(i).printResults();
-        }
-
-        rankers.stream().forEach((ranker)->{ranker.printResults();});
+//        ArrayList<String> qries = new ArrayList<>();
+//        qries.add("cat dog");
+//
+//        ArrayList<Ranker> rankers = Searcher.setQueries(qries);
+//
+//        for (int i=0; i<rankers.size(); i++){
+//            rankers.get(i).runRanking();
+//            rankers.get(i).printResults();
+//        }
+//
+//        rankers.stream().forEach((ranker)->{ranker.printResults();});
 
     }
+
+    public void chooseQueryFilePath(ActionEvent event){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose queries file");
+
+        File f = fileChooser.showOpenDialog(null);
+        if (null!=f && f.exists()){
+            queryFileInput.setText(f.getAbsolutePath());
+            queryFilePath = f.getAbsolutePath();
+        }
+    }
+
+    public ArrayList<PreQuery> parseQueryFile(String filePath){
+        ArrayList<PreQuery> res = new ArrayList<>();
+
+        File f = new File(filePath);
+        byte[] aux = null;
+        try {
+            aux = Files.readAllBytes(f.toPath());
+        } catch (Exception e){e.printStackTrace();}
+
+        String entireFile = new String(aux);
+
+        String[] queries = entireFile.split("<top>");
+
+        for (int i=0; i<queries.length; i++){
+            if (queries[i].trim().equals("")) continue;
+
+            String[] lines = queries[i].split("\n");
+            for (int j=0; j<lines.length; j++){
+
+            }
+
+        }
+
+        return res;
+    }
+
+
+
 
 
 

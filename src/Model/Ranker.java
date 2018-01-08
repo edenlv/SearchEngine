@@ -99,6 +99,28 @@ public class Ranker {
         );
     }
 
+    public ArrayList<String> toArrayString(){
+        ArrayList<String> res = new ArrayList<>();
+
+        this.getResult50().stream().forEach(
+                (qResult) -> {
+                    String str = "";
+                    if (this.query.queryNumber<10) str+="00";
+                    else if (this.query.queryNumber<100) str+="0";
+                    str+=String.valueOf(this.query.queryNumber);
+                    str+= " 1"; //stam mispar
+                    str+= qResult.document.getDocID();
+                    str+= " 100";
+                    str+= " 5.0";
+                    str+=" mt";
+                    res.add(str);
+                }
+        );
+
+
+        return res;
+    }
+
 
 //    public static HashMap<String, MyPair> getPostingData(int postingLine) {
 //        HashMap<String, MyPair> data = new HashMap<>();

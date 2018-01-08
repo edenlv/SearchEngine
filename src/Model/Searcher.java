@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.stream.Stream;
 
 /**
@@ -16,15 +17,25 @@ public class Searcher {
     public static HashMap<Integer, String> postingLinesCache = new HashMap<>();
     public static ArrayList<Query> Queries = new ArrayList<Query>();
 
-    public static ArrayList<Ranker> setQueries(ArrayList<String> qries){
+    public static ArrayList<Ranker> setQueries(LinkedHashMap<String, String> queries){
         postingLinesCache.clear();
         Queries.clear();
 
         ArrayList<Integer> postLinesToRead = new ArrayList<>();
         ArrayList<Ranker> rankers = new ArrayList<Ranker>();
 
-        qries.stream().forEach(
-                (query) -> {
+        queries.entrySet().stream().forEach(
+                (entry) -> {
+                    String query = entry.getValue();
+
+                    int x = 0;
+
+                    try {
+                        x = Integer.parseInt(entry.getKey());
+                    } catch (NumberFormatException e) {
+                        System.err.println("Couldn't parse query number!");
+                    }
+
                     ArrayList<String> parsedQuery = getParsedQuery(query);
                     ArrayList<Integer> neededLines = new ArrayList<>();
                     parsedQuery.forEach( (term) ->{
@@ -38,7 +49,7 @@ public class Searcher {
 
                     postLinesToRead.addAll(neededLines);
 
-                    Query qry = new Query();
+                    Query qry = new Query(x);
                     qry.parsedQuery = parsedQuery;
                     qry.postLinesNeeded = new Integer[neededLines.size()];
                     neededLines.toArray(qry.postLinesNeeded);

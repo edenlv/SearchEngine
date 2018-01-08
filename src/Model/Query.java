@@ -8,12 +8,19 @@ import java.util.HashMap;
  */
 public class Query {
 
-    ArrayList<String> parsedQuery;
-    Integer[] postLinesNeeded;
-    HashMap<String, HashMap<String, MyPair>> postingLines; //key=term, hashmap=data(key=docID, mypair=tf:idx)
+    public ArrayList<String> parsedQuery;
+    public Integer[] postLinesNeeded;
+    public HashMap<String, HashMap<String, MyPair>> postingLines; //key=term, hashmap=data(key=docID, mypair=tf:idx)
+    public int queryNumber;
 
     public Query(){
         postingLines = new HashMap<>();
+        queryNumber = 0;
+    }
+
+    public Query(int num){
+        postingLines = new HashMap<>();
+        this.queryNumber = num;
     }
 
 
