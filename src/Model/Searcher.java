@@ -79,6 +79,7 @@ public class Searcher {
 
     public static ArrayList<String> getParsedQuery(String query){
         ReadFile.docBuffer.clear();
+        Parse.uppercaseLongTerm.setLength(0);
         ReadFile.docBuffer.add(new DocPair(query, ""));
 
         Parse.queryParsing = true;

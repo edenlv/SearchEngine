@@ -12,6 +12,7 @@ import javafx.stage.FileChooser;
 import java.awt.Desktop;
 import java.io.*;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,6 +41,8 @@ public class Controller {
 
     public static LinkedList<String> singleQueryTREC = null;
     public static LinkedList<String> queryFileTREC = null;
+
+    public static LinkedList<Ranker> lastRankers = null;
 
     public TextField input_query;
     public TextField txt_cos;
@@ -359,6 +362,7 @@ public class Controller {
     }
 
     public void runQueryFile(ActionEvent event){
+        long start = System.currentTimeMillis();
         LinkedList<PreQuery> preQueries = parseQueryFile(queryFilePath);
         LinkedList<Ranker> rankers = Searcher.setQueries(preQueries);
         LinkedList<String> resultLines = new LinkedList<>();
@@ -367,25 +371,13 @@ public class Controller {
             rankers.get(i).runRanking();
             resultLines.addAll(rankers.get(i).toArrayString());
         }
+        long end = System.currentTimeMillis();
 
-        queryFileTREC = resultLines;
+        long runTime = end - start;
+        lastRankers = rankers;
 
+        onQueryFinished(rankers, runTime);
         System.out.println("success");
-    }
-
-    public void testQuery(ActionEvent event){
-//        ArrayList<String> qries = new ArrayList<>();
-//        qries.add("cat dog");
-//
-//        ArrayList<Ranker> rankers = Searcher.setQueries(qries);
-//
-//        for (int i=0; i<rankers.size(); i++){
-//            rankers.get(i).runRanking();
-//            rankers.get(i).printResults();
-//        }
-//
-//        rankers.stream().forEach((ranker)->{ranker.printResults();});
-
     }
 
     public void runSingleQuery(ActionEvent event){
@@ -406,7 +398,11 @@ public class Controller {
         long end = System.currentTimeMillis();
 
         long runTime = end - start;
-        singleQueryTREC = resultLines;
+
+
+        lastRankers = rankers;
+
+        onQueryFinished(rankers, runTime);
 
         System.out.println("success");
     }
@@ -451,9 +447,7 @@ public class Controller {
         return res;
     }
 
-
-
-    public void writeQueryResultsToFile(LinkedList<String> lines){
+    public void writeQueryResultsToFile(LinkedList<String> lines) {
         try {
             FileChooser fileChooser = new FileChooser();
             File f = fileChooser.showSaveDialog(null);
@@ -476,14 +470,57 @@ public class Controller {
     }
 
     public void saveResults(ActionEvent event){
-        LinkedList<String> lines = null;
-        if (event.getSource()==btn_saveQueryFileResults){
-            lines = queryFileTREC;
-
-        } else if (event.getSource()==btn_saveResultsSingle){
-            lines = singleQueryTREC;
+        LinkedList<String> lines = new LinkedList<>();
+        for (int i=0; i<lastRankers.size(); i++){
+            lines.addAll(lastRankers.get(i).toArrayString());
         }
+
         writeQueryResultsToFile(lines);
+    }
+
+    public void onQueryFinished(LinkedList<Ranker> rankers, long time){
+        ArrayList<String> lines = new ArrayList<>();
+        double minutes = (time/1000)/60;
+
+        lines.add("Total runtime for queries: " + minutes + " minutes.");
+        lines.add("-----------------------------------------------------------------");
+
+        for(int i=0; i<rankers.size(); i++){
+            Ranker currRanker = rankers.get(i);
+            lines.add("Query number: " + currRanker.query.queryNumber);
+            lines.add("Number of relevant documents retrieved for query: " + currRanker.getResult50().size());
+            lines.add("Results:");
+            lines.addAll(currRanker.prettifyResult());
+            lines.add("-----------------------------------------------------------------");
+        }
+
+        try{
+            String filePath = ReadFile.postingsPath+"\\last_results_pretty.txt";
+            File f = new File (filePath);
+            if (f.exists()) f.delete();
+            f.createNewFile();
+
+            PrintWriter writer = new PrintWriter(new FileWriter(f));
+            for (int j=0; j<lines.size(); j++){
+                writer.println(lines.get(j));
+            }
+            writer.flush();
+            writer.close();
+
+            if (Desktop.isDesktopSupported()) {
+                try {
+                    Desktop.getDesktop().open(f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            } else {
+                System.out.println("Desktop is not supported!");
+            }
+
+        } catch (Exception e){
+            System.err.println("couldnt open query finished file");
+        }
     }
 
 

@@ -39,6 +39,8 @@ public class Ranker {
                             });
                 }
         );
+
+        System.out.println(this.queryResults.size());
     }
 
 
@@ -92,38 +94,6 @@ public class Ranker {
         return this.result50;
     }
 
-    public LinkedList<String> getDocIDFromResult(){
-        LinkedList<String> res = new LinkedList<>();
-
-        this.getResult50().stream().sequential().forEach(
-                (queryResult -> {
-                    res.add(queryResult.document.docID);
-                })
-        );
-
-        return res;
-    }
-
-    public void writeResults(String filePath){
-        try {
-            PrintWriter writer = new PrintWriter(new FileWriter(filePath));
-
-
-
-            writer.flush();
-            writer.close();
-        } catch (IOException e){e.printStackTrace();}
-
-
-    }
-
-    public void printResults(){
-        this.getResult50().stream().forEach(
-                (qResult) ->{
-                    System.out.println(qResult.cosSim + " " + qResult.document.getDocID() + qResult.matchedTerms.size());
-                }
-        );
-    }
 
     public LinkedList<String> toArrayString(){
         LinkedList<String> res = new LinkedList<>();
@@ -143,6 +113,18 @@ public class Ranker {
                 }
         );
 
+
+        return res;
+    }
+
+    public LinkedList<String> prettifyResult(){
+        LinkedList<String> res = new LinkedList<>();
+
+        this.getResult50().stream().sequential().forEach(
+                (qResult) -> {
+                    res.add(qResult.document.docID);
+                }
+        );
 
         return res;
     }

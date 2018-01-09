@@ -76,6 +76,7 @@ public class Document implements Serializable{
             mostFrequentTermValue = val;
             mostFrequentTerm = longTerm;
         }
+        Parse.uppercaseLongTerm.setLength(0);
     }
 
     public static long getNumberOfDocuments(){
