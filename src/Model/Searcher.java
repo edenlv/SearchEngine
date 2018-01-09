@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -17,47 +14,44 @@ public class Searcher {
     public static HashMap<Integer, String> postingLinesCache = new HashMap<>();
     public static ArrayList<Query> Queries = new ArrayList<Query>();
 
-    public static ArrayList<Ranker> setQueries(LinkedHashMap<String, String> queries){
-        postingLinesCache.clear();
+    public static LinkedList<Ranker> setQueries(LinkedList<PreQuery> queries){
+//        postingLinesCache.clear();
         Queries.clear();
 
         ArrayList<Integer> postLinesToRead = new ArrayList<>();
-        ArrayList<Ranker> rankers = new ArrayList<Ranker>();
+        LinkedList<Ranker> rankers = new LinkedList<Ranker>();
 
-        queries.entrySet().stream().forEach(
-                (entry) -> {
-                    String query = entry.getValue();
+        for (int i=0; i<queries.size(); i++) {
+            PreQuery pQuery = queries.get(i);
+            String query = pQuery.queryString;
 
-                    int x = 0;
+            ArrayList<String> parsedQuery = getParsedQuery(query);
+            ArrayList<Integer> neededLines = new ArrayList<>();
 
-                    try {
-                        x = Integer.parseInt(entry.getKey());
-                    } catch (NumberFormatException e) {
-                        System.err.println("Couldn't parse query number!");
-                    }
-
-                    ArrayList<String> parsedQuery = getParsedQuery(query);
-                    ArrayList<Integer> neededLines = new ArrayList<>();
-                    parsedQuery.forEach( (term) ->{
-                        DictionaryEntry dEntry = Dictionary.md_Dictionary.get(term);
-                        if (dEntry==null) {parsedQuery.remove(term);} //if the word in the parsed query is not in the dictionary...
-                        else {
-                            int line = dEntry.postingLine;
-                            neededLines.add(line);
-                        }
-                    });
-
-                    postLinesToRead.addAll(neededLines);
-
-                    Query qry = new Query(x);
-                    qry.parsedQuery = parsedQuery;
-                    qry.postLinesNeeded = new Integer[neededLines.size()];
-                    neededLines.toArray(qry.postLinesNeeded);
-                    Queries.add(qry);
-
-                    rankers.add(new Ranker(qry));
+            for (int j=0; j< parsedQuery.size(); j++) {
+                String term = parsedQuery.get(j);
+                DictionaryEntry dEntry = Dictionary.md_Dictionary.get(term);
+                if (dEntry == null) {
+                    parsedQuery.remove(term);
+                } //if the word in the parsed query is not in the dictionary...
+                else {
+                    int line = dEntry.postingLine;
+                    neededLines.add(line);
                 }
-        );
+            }
+
+             postLinesToRead.addAll(neededLines);
+
+             Query qry = new Query(pQuery.queryNumber);
+
+             qry.parsedQuery = parsedQuery;
+             qry.postLinesNeeded = new Integer[neededLines.size()];
+             neededLines.toArray(qry.postLinesNeeded);
+             Queries.add(qry);
+
+             rankers.add(new Ranker(qry));
+
+        }
 
         for (int k=0; k<postLinesToRead.size(); k++){
             if (postingLinesCache.containsKey(postLinesToRead.get(k))) continue;
@@ -65,18 +59,17 @@ public class Searcher {
             postingLinesCache.put(postLinesToRead.get(k), line);
         }
 
-        Queries.stream().forEach(
-                (query) -> {
-                    for(int i=0;i<query.postLinesNeeded.length;i++){
-                        String postline = postingLinesCache.get(query.postLinesNeeded[i]);
+        for (int k=0; k<Queries.size(); k++) {
+            Query query = Queries.get(k);
+            for (int i = 0; i < query.postLinesNeeded.length; i++) {
+                String postline = postingLinesCache.get(query.postLinesNeeded[i]);
 
-                        PostingEntry pEntry = processPostingLine(postline);
+                PostingEntry pEntry = processPostingLine(postline);
 
-                        query.postingLines.put(pEntry.term,pEntry.data);
+                query.postingLines.put(pEntry.term, pEntry.data);
 
-                    }
-                }
-        );
+            }
+        }
 
 
         System.out.println("Setting queries completed");

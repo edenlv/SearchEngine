@@ -7,6 +7,7 @@ import java.util.Iterator;
 public class Document implements Serializable{
     private static final long serialVersionUID = -8178667157127751118L;
     public static HashMap<String, Document> documentsCollection = new HashMap<>();
+    public static double avgDocSize = -1;
 
     public HashMap<String, MyPair> hMap;
     public String docID;
@@ -210,4 +211,21 @@ public class Document implements Serializable{
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public static double getAvgDocSize(){
+        if (avgDocSize==-1) {
+            double ans = 0;
+            Iterator it = Document.documentsCollection.values().iterator();
+            while (it.hasNext()) {
+                Document doc = (Document) it.next();
+                ans += doc.documentLength;
+            }
+            ans = ans / Document.documentsCollection.size();
+
+            avgDocSize = ans;
+        }
+
+        return avgDocSize;
+    }
+
 }

@@ -10,4 +10,8 @@ public class PreQuery {
         this.queryNumber = queryNumber;
         this.description = description;
     }
+
+    public PreQuery(){
+
+    }
 }

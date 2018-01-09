@@ -8,23 +8,20 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.util.Pair;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.awt.Desktop;
+import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import static Model.Document.documentsCollection;
 
 
 public class Controller {
 
+    public static double cos = 0;
+    public static double bm = 0;
     public Button corpusPathBtn;
     public Button postingPathBtn;
     public TextField corpusPathInput;
@@ -38,6 +35,15 @@ public class Controller {
     public Button btn_qryBrowse;
     public TextField queryFileInput;
     private String queryFilePath;
+    public Button btn_saveQueryFileResults;
+    public Button btn_saveResultsSingle;
+
+    public static LinkedList<String> singleQueryTREC = null;
+    public static LinkedList<String> queryFileTREC = null;
+
+    public TextField input_query;
+    public TextField txt_cos;
+    public TextField txt_bm;
 
     public void onChooseDirectory(ActionEvent event){
         DirectoryChooser dirChooser = new DirectoryChooser();
@@ -310,6 +316,17 @@ public class Controller {
 //                writeCollectionToFile();
 //    }
 
+    public void chooseQueryFilePath(ActionEvent event){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose queries file");
+
+        File f = fileChooser.showOpenDialog(null);
+        if (null!=f && f.exists()){
+            queryFileInput.setText(f.getAbsolutePath());
+            queryFilePath = f.getAbsolutePath();
+        }
+    }
+
     public void test2(ActionEvent actionEvent){
         boolean success = Document.loadDocumentsFile();
         System.out.println(success?"succeeded":"failed");
@@ -329,10 +346,31 @@ public class Controller {
 
     }
 
+    public void changeCOS(ActionEvent event){
+        try {
+            cos = Double.parseDouble(txt_cos.getText());
+        } catch (Exception e){e.printStackTrace();}
+    }
+
+    public void changeBM(ActionEvent event){
+        try{
+            bm = Double.parseDouble(txt_bm.getText());
+        } catch (Exception e){e.printStackTrace();}
+    }
+
     public void runQueryFile(ActionEvent event){
-        ArrayList<PreQuery> preQueries = parseQueryFile(queryFilePath);
+        LinkedList<PreQuery> preQueries = parseQueryFile(queryFilePath);
+        LinkedList<Ranker> rankers = Searcher.setQueries(preQueries);
+        LinkedList<String> resultLines = new LinkedList<>();
 
+        for (int i=0; i<rankers.size(); i++){
+            rankers.get(i).runRanking();
+            resultLines.addAll(rankers.get(i).toArrayString());
+        }
 
+        queryFileTREC = resultLines;
+
+        System.out.println("success");
     }
 
     public void testQuery(ActionEvent event){
@@ -350,19 +388,32 @@ public class Controller {
 
     }
 
-    public void chooseQueryFilePath(ActionEvent event){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose queries file");
+    public void runSingleQuery(ActionEvent event){
+        long start = System.currentTimeMillis();
 
-        File f = fileChooser.showOpenDialog(null);
-        if (null!=f && f.exists()){
-            queryFileInput.setText(f.getAbsolutePath());
-            queryFilePath = f.getAbsolutePath();
+        LinkedList<PreQuery> preQueries = new LinkedList<>();
+        PreQuery preQuery = new PreQuery(input_query.getText(), 0, "");
+        preQueries.add(preQuery);
+
+        LinkedList<Ranker> rankers = Searcher.setQueries(preQueries);
+        LinkedList<String> resultLines = new LinkedList<>();
+
+        for (int i=0; i<rankers.size(); i++){
+            rankers.get(i).runRanking();
+            resultLines.addAll(rankers.get(i).toArrayString());
         }
+
+        long end = System.currentTimeMillis();
+
+        long runTime = end - start;
+        singleQueryTREC = resultLines;
+
+        System.out.println("success");
     }
 
-    public ArrayList<PreQuery> parseQueryFile(String filePath){
-        ArrayList<PreQuery> res = new ArrayList<>();
+
+    public LinkedList<PreQuery> parseQueryFile(String filePath){
+        LinkedList<PreQuery> res = new LinkedList<>();
 
         File f = new File(filePath);
         byte[] aux = null;
@@ -377,10 +428,23 @@ public class Controller {
         for (int i=0; i<queries.length; i++){
             if (queries[i].trim().equals("")) continue;
 
+            PreQuery preQuery = new PreQuery();
+
             String[] lines = queries[i].split("\n");
             for (int j=0; j<lines.length; j++){
-
+                if (lines[j].contains("<title>")) preQuery.queryString = lines[j].replace("<title>","").trim();
+                if (lines[j].contains("<num>")) {
+                    String str = lines[j].replace("<num>","").replace("Number:","").trim();
+                    try{
+                        preQuery.queryNumber = Integer.parseInt(str);
+                    } catch (NumberFormatException e) {
+                        System.err.println("Couldnt parse query number");
+                    }
+                }
+//                if (lines[j].contains("<description"))
             }
+
+            res.add(preQuery);
 
         }
 
@@ -389,9 +453,60 @@ public class Controller {
 
 
 
+    public void writeQueryResultsToFile(LinkedList<String> lines){
+        try {
+            FileChooser fileChooser = new FileChooser();
+            File f = fileChooser.showSaveDialog(null);
+
+            if (f != null) {
+                if (f.exists()) f.delete();
+                f.createNewFile();
+
+                PrintWriter writer = new PrintWriter(new FileWriter(f));
+                for (int i=0; i<lines.size(); i++){
+                    writer.println(lines.get(i));
+                }
+                writer.flush();
+                writer.close();
+            }
+
+        } catch (IOException e){
+            System.err.println("couldnt save results file");
+        }
+    }
+
+    public void saveResults(ActionEvent event){
+        LinkedList<String> lines = null;
+        if (event.getSource()==btn_saveQueryFileResults){
+            lines = queryFileTREC;
+
+        } else if (event.getSource()==btn_saveResultsSingle){
+            lines = singleQueryTREC;
+        }
+        writeQueryResultsToFile(lines);
+    }
 
 
 
+
+
+
+
+//    public void writeResultsToFile(List<String> lines, String filePath){
+//        try {
+//            File f = new File(filePath);
+//            if (!f.exists()) f.createNewFile();
+//
+//            PrintWriter writer = new PrintWriter(new FileWriter(f));
+//            for (int i=0; i<lines.size(); i++){
+//                writer.println(lines.get(i));
+//            }
+//            writer.flush();
+//            writer.close();
+//        } catch (Exception e) {
+//            System.err.println("couldnt write results to file");
+//        }
+//    }
 
 
     /*

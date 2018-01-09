@@ -1,5 +1,7 @@
 package Model;
 
+import View.Controller;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +14,7 @@ public class Ranker {
     public HashMap<String, QueryResult> queryResults;
     public Query query;
     public double queryVectorSize;
-    public ArrayList<QueryResult> result50;
+    public LinkedList<QueryResult> result50;
 
 
     public Ranker(Query qry) {
@@ -46,6 +48,18 @@ public class Ranker {
         double Wij = normalTF * termIDF;
         double pCosSim = Wij / (doc.docVectorSize * this.queryVectorSize);
 
+        double k1 = 1.4;
+        double b = 0.75;
+
+        double df = Dictionary.md_Dictionary.get(term).df;
+        double altIDF = Math.log((Document.documentsCollection.size()-df+0.5)/(df+0.5))/Math.log(2);
+
+        double top = altIDF * pair.tf * (k1+1);
+        double bottom = pair.tf + (k1*(1-b+(b*doc.documentLength/Document.getAvgDocSize())));
+        double bm25 = top/bottom;
+
+        pCosSim = (Controller.cos*pCosSim) + (Controller.bm*bm25);
+
         QueryResult qResult = this.queryResults.get(doc.docID);
         if (qResult == null) {
             this.queryResults.put(doc.docID, new QueryResult(doc, pCosSim, term));
@@ -56,11 +70,11 @@ public class Ranker {
 
     }
 
-    public ArrayList<QueryResult> getResult50(){
+    public LinkedList<QueryResult> getResult50(){
         if (queryResults.size()==0) return null;
 
         if (this.result50==null) {
-            ArrayList<QueryResult> results = new ArrayList<QueryResult>();
+            LinkedList<QueryResult> results = new LinkedList<QueryResult>();
 
             this.queryResults.values().stream().sorted(
                     (val1, val2) -> {
@@ -76,6 +90,18 @@ public class Ranker {
         }
 
         return this.result50;
+    }
+
+    public LinkedList<String> getDocIDFromResult(){
+        LinkedList<String> res = new LinkedList<>();
+
+        this.getResult50().stream().sequential().forEach(
+                (queryResult -> {
+                    res.add(queryResult.document.docID);
+                })
+        );
+
+        return res;
     }
 
     public void writeResults(String filePath){
@@ -99,16 +125,16 @@ public class Ranker {
         );
     }
 
-    public ArrayList<String> toArrayString(){
-        ArrayList<String> res = new ArrayList<>();
+    public LinkedList<String> toArrayString(){
+        LinkedList<String> res = new LinkedList<>();
 
-        this.getResult50().stream().forEach(
+        this.getResult50().stream().sequential().forEach(
                 (qResult) -> {
                     String str = "";
                     if (this.query.queryNumber<10) str+="00";
                     else if (this.query.queryNumber<100) str+="0";
                     str+=String.valueOf(this.query.queryNumber);
-                    str+= " 1"; //stam mispar
+                    str+= " 1 "; //stam mispar
                     str+= qResult.document.getDocID();
                     str+= " 100";
                     str+= " 5.0";
@@ -120,31 +146,5 @@ public class Ranker {
 
         return res;
     }
-
-
-//    public static HashMap<String, MyPair> getPostingData(int postingLine) {
-//        HashMap<String, MyPair> data = new HashMap<>();
-//
-//        File postingFile = new File(Indexer.getPostingFilePath());
-//        String lineData = null;
-//        try (Stream<String> lines = Files.lines(postingFile.toPath())) {
-//            lineData = lines.skip(postingLine).findFirst().get();
-//        } catch (IOException ex) {
-//            System.err.println("Could not read from posting file!");
-//            ex.printStackTrace();
-//            return null;
-//        }
-//
-//        String[] splitData = lineData.split("#|,");
-//        System.out.printf("Read posting line number %d of term %s\n", postingLine, splitData[0]);
-//
-//        for (int i = 1; i < splitData.length; i++) {
-//            String[] aux = splitData[i].split(":");
-//            MyPair pair = new MyPair(Integer.parseInt(aux[1]), Integer.parseInt(aux[2]));
-//            data.put(aux[0], pair);
-//        }
-//
-//        return data;
-//    }
 
 }
