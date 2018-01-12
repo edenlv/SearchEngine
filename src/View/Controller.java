@@ -1,6 +1,7 @@
 package View;
 
 import Model.*;
+import Model.Dictionary;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -12,13 +13,11 @@ import javafx.stage.FileChooser;
 import java.awt.Desktop;
 import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static Model.Document.*;
 import static Model.Parse.*;
+import static Model.Searcher.getParsedQuery;
 
 
 public class Controller {
@@ -305,6 +304,7 @@ public class Controller {
                 }
             }
 
+            showWaitMessage(false);
             System.out.println("Success: Loaded dictionary, cache and documents collection!");
 
             if (!foundDocCollection || !foundDic){
@@ -343,11 +343,30 @@ public class Controller {
         alert.show();
     }
 
+    public void execDocSummary(){
+        String input = input_query.getText();
+        Document doc = Document.documentsCollection.get(input);
+        if (doc == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("No such document!");
+            alert.show();
+            return;
+        }
+
+        String folder = doc.getFolderName();
+        String path = ReadFile.path+"\\"+folder+"\\"+folder;
+        top5(path,input);
+    }
+
     public void run(ActionEvent event){
         boolean singleQuery = event.getSource()==btn_qRun;
 
         boolean isOK = checkIntegrity(singleQuery);
         if (isOK){
+            if (docSummary){
+                execDocSummary();
+                return;
+            }
             long start = System.currentTimeMillis();
             showWaitMessage(true);
 
@@ -485,9 +504,12 @@ public class Controller {
             lines.add("-----------------------------------------------------------------");
         }
 
+        printToFile(ReadFile.postingsPath+"\\last_results_pretty.txt", lines);
+    }
+
+    public static void printToFile(String path, ArrayList<String> lines){
         try{
-            String filePath = ReadFile.postingsPath+"\\last_results_pretty.txt";
-            File f = new File (filePath);
+            File f = new File (path);
             if (f.exists()) f.delete();
             f.createNewFile();
 
@@ -513,8 +535,6 @@ public class Controller {
             System.err.println("couldnt open query finished file");
         }
     }
-
-
 
     public LinkedList<PreQuery> parseQueryFile(String filePath){
         LinkedList<PreQuery> res = new LinkedList<>();
@@ -553,6 +573,86 @@ public class Controller {
         }
 
         return res;
+    }
+
+    public static void top5(String filePath, String docNO) {
+        Map<String, Double> docMap = new LinkedHashMap<>();
+        String[] parts = null;
+        String text = null;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filePath));
+            String line;
+            String textAsString = "";
+            while ((line = br.readLine()) != null) {
+                if (line.contains(docNO)) {
+                    while (!(line).equals("</TEXT>")) {
+                        //for the "LA" files
+                        if ((line = br.readLine()).equals("<P>") || line.equals("</P>"))
+                            continue;
+                        textAsString = textAsString + line;
+                    }
+                    text = textAsString.split("<TEXT>")[1].split("</TEXT>")[0].trim();
+                    parts = text.split("\\.");
+//                    for (String sentence : parts) {
+//                        docMap.put(sentence.trim(), 0.0);
+//                    }
+                    break;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ReadFile.docBuffer.clear();
+        ReadFile.docBuffer.add(new DocPair(text, ""));
+
+        Parse.queryParsing = true;
+        Parse.parse();
+        Parse.queryParsing = false;
+        Document tDoc = Parse.parsedDocs.get(0);
+        int maxTF = tDoc.hMap.get(tDoc.mostFrequentTerm).getTf();
+        LinkedList<String> idxList = new LinkedList<>();
+
+        for (String sentence : parts) {
+            sentence = sentence.trim();
+            ArrayList<String> splitted = getParsedQuery(sentence);
+            double score = 0;
+
+            for (String word : splitted) {
+                if (tDoc.hMap.containsKey(word)) {
+                    int tf = tDoc.hMap.get(word).getTf();
+                    score += (tf / maxTF);
+                }
+            }
+            docMap.put(sentence,score);
+            idxList.add(sentence);
+        }
+
+        ArrayList<String> lines = new ArrayList<>();
+        ArrayList<String> sortedSentences = new ArrayList<>();
+
+        docMap.entrySet().stream().sorted(
+                (e1, e2)-> Double.compare(e2.getValue(),e1.getValue())
+        ).limit(5).forEach(
+                entry -> sortedSentences.add(entry.getKey())
+        );
+
+        int i=1;
+        Iterator<String> it = docMap.keySet().iterator();
+        while (it.hasNext()){
+            String sentence = it.next();
+            int idx = sortedSentences.indexOf(sentence);
+            if (idx!=-1){
+                lines.add(i+". Score: " + (idx+1));
+                lines.add(sentence.replaceAll("\\s\\s+", " "));
+                i++;
+            }
+            if (i==6) break;
+        }
+
+        Controller.printToFile(ReadFile.postingsPath+"\\last_results_pretty.txt", lines);
+
     }
 
 
