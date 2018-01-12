@@ -40,7 +40,6 @@ public class Ranker {
                 }
         );
 
-        System.out.println(this.queryResults.size());
     }
 
 
@@ -60,14 +59,14 @@ public class Ranker {
         double bottom = pair.tf + (k1*(1-b+(b*doc.documentLength/Document.getAvgDocSize())));
         double bm25 = top/bottom;
 
-        pCosSim = (Controller.cos*pCosSim) + (Controller.bm*bm25);
+        double docRank = (1*pCosSim) + (1*bm25);
 
         QueryResult qResult = this.queryResults.get(doc.docID);
         if (qResult == null) {
-            this.queryResults.put(doc.docID, new QueryResult(doc, pCosSim, term));
+            this.queryResults.put(doc.docID, new QueryResult(doc, docRank, term));
         } else {
             qResult.addTerm(term);
-            qResult.addCosSim(pCosSim);
+            qResult.addCosSim(docRank);
         }
 
     }

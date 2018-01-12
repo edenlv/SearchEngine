@@ -42,7 +42,7 @@ public class Indexer {
 
 //            d.hMap.clear();
 //            d.hMap = null;
-            d.computeVectorSize();
+//            d.computeVectorSize();
             Document.documentsCollection.put(d.docID, d);
         }
         createTempPostingFile();

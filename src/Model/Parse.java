@@ -15,12 +15,12 @@ public class Parse {
     public static boolean toStem = false;
     public static boolean queryParsing = true;
     public static final Stemmer STEMMER = new Stemmer();
-    public static HashSet<Character> whiteSpaces = _initWhiteSpaces();
-    public static final HashSet<String> stopWords = _initStopwordsTable();
-    public static final Hashtable<String, String> md_Months = _initMonthsTable();
+    public static HashSet<Character> whiteSpaces = null;
+    public static HashSet<String> stopWords = null;
+    public static HashMap<String, String> md_Months = null;
     public static StringBuilder uppercaseLongTerm = new StringBuilder();
     public static int consecutiveCapitals = 0;
-    public static Hashtable<String, String> stemCache = new Hashtable<>();
+    public static HashMap<String, String> stemCache = new HashMap<>();
     public static int numberOfDocuments = 0;
 
     public static enum ContentType { DOUBLE, INTEGER, FIRSTUPPER, DAYTH, PERCENT, AB, NONE }
@@ -390,90 +390,62 @@ public class Parse {
         }
     }
 
-    public static Hashtable<String, String> _initMonthsTable() {
-        Hashtable<String,String> myTable = new Hashtable<String,String>();
-        myTable.put("January", "01");
-        myTable.put("JANUARY", "01");
-        myTable.put("Jan", "01");
-        myTable.put("JAN", "01");
-        myTable.put("February", "02");
-        myTable.put("FEBRUARY", "02");
-        myTable.put("Feb", "02");
-        myTable.put("FEB", "02");
-        myTable.put("March", "03");
-        myTable.put("MARCH", "03");
-        myTable.put("Mar", "03");
-        myTable.put("MAR", "03");
-        myTable.put("April", "04");
-        myTable.put("APRIL", "04");
-        myTable.put("Apr", "04");
-        myTable.put("APR", "04");
-        myTable.put("May", "05");
-        myTable.put("MAY", "05");
-        myTable.put("June", "06");
-        myTable.put("JUNE", "06");
-        myTable.put("Jun", "06");
-        myTable.put("JUN", "06");
-        myTable.put("July", "07");
-        myTable.put("JULY", "07");
-        myTable.put("Jul", "07");
-        myTable.put("JUL", "07");
-        myTable.put("August", "08");
-        myTable.put("AUGUST", "08");
-        myTable.put("Aug", "08");
-        myTable.put("AUG", "08");
-        myTable.put("September", "09");
-        myTable.put("SEPTEMBER", "09");
-        myTable.put("Sep", "09");
-        myTable.put("SEP", "09");
-        myTable.put("October", "10");
-        myTable.put("OCTOBER", "10");
-        myTable.put("Oct", "10");
-        myTable.put("OCT", "10");
-        myTable.put("November", "11");
-        myTable.put("NOVEMBER", "11");
-        myTable.put("Nov", "11");
-        myTable.put("NOV", "11");
-        myTable.put("December", "12");
-        myTable.put("DECEMBER", "12");
-        myTable.put("Dec", "12");
-        myTable.put("DEC", "12");
-        return myTable;
+    public static HashMap<String, String> _initMonthsTable() {
+        if (md_Months == null) {
+            md_Months = new HashMap<>();
+            md_Months.put("January", "01");md_Months.put("JANUARY", "01");md_Months.put("Jan", "01");md_Months.put("JAN", "01");
+            md_Months.put("February", "02");md_Months.put("FEBRUARY", "02");md_Months.put("Feb", "02");md_Months.put("FEB", "02");
+            md_Months.put("March", "03");md_Months.put("MARCH", "03");md_Months.put("Mar", "03");md_Months.put("MAR", "03");
+            md_Months.put("April", "04");md_Months.put("APRIL", "04");md_Months.put("Apr", "04");md_Months.put("APR", "04");
+            md_Months.put("May", "05");md_Months.put("MAY", "05");
+            md_Months.put("June", "06");md_Months.put("JUNE", "06");md_Months.put("Jun", "06");md_Months.put("JUN", "06");
+            md_Months.put("July", "07");md_Months.put("JULY", "07");md_Months.put("Jul", "07");md_Months.put("JUL", "07");
+            md_Months.put("August", "08");md_Months.put("AUGUST", "08");md_Months.put("Aug", "08");md_Months.put("AUG", "08");
+            md_Months.put("September", "09");md_Months.put("SEPTEMBER", "09");md_Months.put("Sep", "09");md_Months.put("SEP", "09");
+            md_Months.put("October", "10");md_Months.put("OCTOBER", "10");md_Months.put("Oct", "10");md_Months.put("OCT", "10");
+            md_Months.put("November", "11");md_Months.put("NOVEMBER", "11");md_Months.put("Nov", "11");md_Months.put("NOV", "11");
+            md_Months.put("December", "12");md_Months.put("DECEMBER", "12");md_Months.put("Dec", "12");md_Months.put("DEC", "12");
+        }
+        return md_Months;
     }
 
 
     public static HashSet<String> _initStopwordsTable(){
-        HashSet<String> stopWords = new HashSet<>();
-        long start = System.currentTimeMillis();
-        File swFile = new File(ReadFile.path+"\\stop_words.txt");
-        if (swFile != null && swFile.exists() && swFile.isFile()){
-            try{
-                String fileContent = new String(Files.readAllBytes(swFile.toPath()));
-                String[] sw = fileContent.split("\r\n");
-                for (int i=0; i<sw.length; i++)
-                    sw[i] = sw[i].replace("'", "");
+        if (stopWords == null) {
+            stopWords = new HashSet<>();
+            long start = System.currentTimeMillis();
+            File swFile = new File(ReadFile.path + "\\stop_words.txt");
+            if (swFile != null && swFile.exists() && swFile.isFile()) {
+                try {
+                    String fileContent = new String(Files.readAllBytes(swFile.toPath()));
+                    String[] sw = fileContent.split("\r\n");
+                    for (int i = 0; i < sw.length; i++)
+                        sw[i] = sw[i].replace("'", "");
 
-                stopWords.addAll(Arrays.asList(sw));
-            } catch (IOException ioException){
-                System.out.println("exception");
+                    stopWords.addAll(Arrays.asList(sw));
+                } catch (IOException ioException) {
+                    System.out.println("Exception while reading stopwords file");
+                    return null;
+                }
+                System.out.println("Loaded stop words into HashSet in " + (System.currentTimeMillis() - start) + "[ms]");
             }
-        } else {
-            if (!queryParsing) View.Controller.noStopwordsFile();
         }
-        System.out.println("Loaded stop words into HashSet in " + (System.currentTimeMillis()-start) +"[ms]");
+
         return stopWords;
     }
 
 
     public static HashSet<Character> _initWhiteSpaces(){
-        Character[] whiteSpaces = { '\'', '�', '_', ' ', '*', ',', ':', '"', ';', '(', ')', '[', ']', '{', '}','<','>',
-                '!', '?', '-', '`', '|', '/', '\\', '#', '&', '+', '=', '~', '$', '^', '@'
-        };
-        HashSet<Character> hashSet = new HashSet<Character>();
-        for (Character c : whiteSpaces)
-            hashSet.add(c);
+        if (whiteSpaces == null) {
+            whiteSpaces = new HashSet<>();
+            Character[] ws = {'\'', '�', '_', ' ', '*', ',', ':', '"', ';', '(', ')', '[', ']', '{', '}', '<', '>',
+                    '!', '?', '-', '`', '|', '/', '\\', '#', '&', '+', '=', '~', '$', '^', '@'
+            };
+            for (Character c : ws)
+                whiteSpaces.add(c);
+        }
 
-        return hashSet;
+        return whiteSpaces;
     }
 
     public static void setStem(boolean bool){
@@ -489,5 +461,10 @@ public class Parse {
         }
 
         return -1;
+    }
+
+    public static void _initParser(){
+        _initMonthsTable();
+        _initWhiteSpaces();
     }
 }

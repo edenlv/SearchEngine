@@ -13,16 +13,18 @@ import java.awt.Desktop;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import static Model.Document.documentsCollection;
+import static Model.Document.*;
+import static Model.Parse.*;
 
 
 public class Controller {
 
-    public static double cos = 0;
-    public static double bm = 0;
+    public static boolean extendedQuery = false;
+    public static boolean docSummary = false;
     public Button corpusPathBtn;
     public Button postingPathBtn;
     public TextField corpusPathInput;
@@ -38,10 +40,14 @@ public class Controller {
     private String queryFilePath;
     public Button btn_saveQueryFileResults;
     public Button btn_saveResultsSingle;
+    public CheckBox cb_extendedQuery;
+    public CheckBox cb_docSummary;
+    public Button btn_qRun;
+    public Button btn_qFileRun;
 
     public static LinkedList<String> singleQueryTREC = null;
     public static LinkedList<String> queryFileTREC = null;
-
+    public static String lastSavedResultsFile = null;
     public static LinkedList<Ranker> lastRankers = null;
 
     public TextField input_query;
@@ -69,9 +75,14 @@ public class Controller {
     }
 
     public void onToggleStem(ActionEvent event){
+        boolean isSelected = ((CheckBox)event.getSource()).isSelected();
+
         if (event.getSource()==cb_stem){
-            boolean isSelected = cb_stem.isSelected();
             Parse.setStem(isSelected);
+        } else if (event.getSource()==cb_docSummary){
+            Controller.docSummary = isSelected;
+        } else if (event.getSource() == cb_extendedQuery){
+            Controller.extendedQuery = isSelected;
         }
     }
 
@@ -109,55 +120,55 @@ public class Controller {
 
     }
 
-    public void onResetProgram(ActionEvent event){
-        showWaitMessage(true);
+//    public void onResetProgram(ActionEvent event){
+//        showWaitMessage(true);
+//
+//        Dictionary.resetDictionary();
+//        Cache.resetCache();
+//        if (ReadFile.postingsPath!=null) {
+//            File postingDir = new File(ReadFile.postingsPath);
+//            String[] entries = postingDir.list();
+//            for (String s : entries) {
+//                File currentFile = new File(postingDir.getPath(), s);
+//                currentFile.delete();
+//            }
+//            postingDir.delete();
+//        }
+//
+//        showWaitMessage(false);
+//    }
 
-        Dictionary.resetDictionary();
-        Cache.resetCache();
-        if (ReadFile.postingsPath!=null) {
-            File postingDir = new File(ReadFile.postingsPath);
-            String[] entries = postingDir.list();
-            for (String s : entries) {
-                File currentFile = new File(postingDir.getPath(), s);
-                currentFile.delete();
-            }
-            postingDir.delete();
-        }
-
-        showWaitMessage(false);
-    }
-
-    public void onOpenFile(ActionEvent actionEvent) {
-        if (actionEvent.getSource()==btn_showDictionary) {
-            File file = new File(Dictionary.getDictionaryPath(ReadFile.postingsPath));
-            if (!file.exists()) Dictionary.saveDictionary(ReadFile.postingsPath);
-
-            if (Desktop.isDesktopSupported()) {
-                try {
-                    Desktop.getDesktop().open(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                System.out.println("Desktop is not supported!");
-            }
-        } else if (actionEvent.getSource() == btn_showCache) {
-            File file = new File(Cache.getCacheFullPath(ReadFile.postingsPath));
-            if (!file.exists()) Cache.saveCache(ReadFile.postingsPath);
-
-            if (Desktop.isDesktopSupported()) {
-                try {
-                    Desktop.getDesktop().open(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                System.out.println("Desktop is not supported!");
-            }
-        }
-    }
+//    public void onOpenFile(ActionEvent actionEvent) {
+//        if (actionEvent.getSource()==btn_showDictionary) {
+//            File file = new File(Dictionary.getDictionaryPath(ReadFile.postingsPath));
+//            if (!file.exists()) Dictionary.saveDictionary(ReadFile.postingsPath);
+//
+//            if (Desktop.isDesktopSupported()) {
+//                try {
+//                    Desktop.getDesktop().open(file);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            } else {
+//                System.out.println("Desktop is not supported!");
+//            }
+//        } else if (actionEvent.getSource() == btn_showCache) {
+//            File file = new File(Cache.getCacheFullPath(ReadFile.postingsPath));
+//            if (!file.exists()) Cache.saveCache(ReadFile.postingsPath);
+//
+//            if (Desktop.isDesktopSupported()) {
+//                try {
+//                    Desktop.getDesktop().open(file);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            } else {
+//                System.out.println("Desktop is not supported!");
+//            }
+//        }
+//    }
 
     public void onSaveDictionaryAndCache(ActionEvent actionEvent){
         DirectoryChooser dirChooser = new DirectoryChooser();
@@ -174,29 +185,29 @@ public class Controller {
 
     }
 
-    public void onLoadDictionary(ActionEvent event){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose dictionary file");
-
-        File f = fileChooser.showOpenDialog(null);
-        if (null!=f && f.exists()){
-            if (event.getSource()==btn_loadPreDictionary){
-                Dictionary.loadPreDictionary(f.getAbsolutePath());
-            } else {
-                Dictionary.loadDictionary(f.getAbsolutePath());
-            }
-        }
-    }
-
-    public void onLoadCache(ActionEvent event){
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose dictionary file");
-
-        File f = fileChooser.showOpenDialog(null);
-        if (null!=f && f.exists()){
-            Cache.loadCache(f.getAbsolutePath());
-        }
-    }
+//    public void onLoadDictionary(ActionEvent event){
+//        FileChooser fileChooser = new FileChooser();
+//        fileChooser.setTitle("Choose dictionary file");
+//
+//        File f = fileChooser.showOpenDialog(null);
+//        if (null!=f && f.exists()){
+//            if (event.getSource()==btn_loadPreDictionary){
+//                Dictionary.loadPreDictionary(f.getAbsolutePath());
+//            } else {
+//                Dictionary.loadDictionary(f.getAbsolutePath());
+//            }
+//        }
+//    }
+//
+//    public void onLoadCache(ActionEvent event){
+//        FileChooser fileChooser = new FileChooser();
+//        fileChooser.setTitle("Choose dictionary file");
+//
+//        File f = fileChooser.showOpenDialog(null);
+//        if (null!=f && f.exists()){
+//            Cache.loadCache(f.getAbsolutePath());
+//        }
+//    }
 
     public void showWaitMessage(boolean toShow){
         if (toShow) {
@@ -204,9 +215,9 @@ public class Controller {
             waitAlert.setTitle("Wait... Program is running!");
             waitAlert.setHeaderText("Wait... Program is running!");
             waitAlert.setContentText("Please wait...");
-            waitAlert.show();
+            if (!waitAlert.isShowing()) waitAlert.show();
         } else {
-            waitAlert.close();
+            if (waitAlert.isShowing()) waitAlert.close();
         }
     }
 
@@ -270,6 +281,8 @@ public class Controller {
     }
 
     public void loadDictionaryAndDocCollection(ActionEvent event){
+
+
         DirectoryChooser dirChooser = new DirectoryChooser();
         dirChooser.setTitle("Choose folder directory");
 
@@ -278,6 +291,7 @@ public class Controller {
         if (null!=f) {
             File[] subfiles = f.listFiles(File::isFile);
             boolean foundDic = false, foundDocCollection = false;
+            showWaitMessage(true);
             for (int i=0; i<subfiles.length; i++){
                 File file = subfiles[i];
                 if (((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))) {
@@ -291,7 +305,7 @@ public class Controller {
                 }
             }
 
-            System.out.println("success");
+            System.out.println("Success: Loaded dictionary, cache and documents collection!");
 
             if (!foundDocCollection || !foundDic){
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -299,25 +313,8 @@ public class Controller {
                 alert.show();
             }
         }
+
     }
-
-
-
-//    public void test(ActionEvent actionEvent){
-//        File f = new File(ReadFile.postingsPath+"\\DocumentsCollection.txt");
-//        Document doc = new Document();
-//        doc.docVectorSize = 5;
-//        doc.mostFrequentTermValue = 3;
-//        doc.mostFrequentTerm = "cat";
-//        doc.docID = "DOC1";
-//        doc.documentLength = 234;
-//        doc.uniqueTermsCounter = 5;
-//        doc.hMap = null;
-//
-//        documentsCollection.put("DOC1", doc);
-//        Document.
-//                writeCollectionToFile();
-//    }
 
     public void chooseQueryFilePath(ActionEvent event){
         FileChooser fileChooser = new FileChooser();
@@ -330,122 +327,99 @@ public class Controller {
         }
     }
 
-    public void test2(ActionEvent actionEvent){
-        boolean success = Document.loadDocumentsFile();
-        System.out.println(success?"succeeded":"failed");
+    public void resetProgram(ActionEvent event){
+        Dictionary.resetDictionary();
+        Document.reset();
+        Searcher.postingLinesCache.clear();
+        Searcher.Queries.clear();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText("Reset program successfully");
+        alert.show();
     }
 
-    public void writeDocCollectionToFile(ActionEvent event){
-        //Document.computeAllDocVectorSizes();
-        Document.writeCollectionToFile();
-        System.out.println("success");
-    }
+    public void run(ActionEvent event){
+        boolean singleQuery = event.getSource()==btn_qRun;
 
-    public void test3(ActionEvent event){
+        boolean isOK = checkIntegrity(singleQuery);
+        if (isOK){
+            long start = System.currentTimeMillis();
+            showWaitMessage(true);
 
-    }
-
-    public void test4(ActionEvent event){
-
-    }
-
-    public void changeCOS(ActionEvent event){
-        try {
-            cos = Double.parseDouble(txt_cos.getText());
-        } catch (Exception e){e.printStackTrace();}
-    }
-
-    public void changeBM(ActionEvent event){
-        try{
-            bm = Double.parseDouble(txt_bm.getText());
-        } catch (Exception e){e.printStackTrace();}
-    }
-
-    public void runQueryFile(ActionEvent event){
-        long start = System.currentTimeMillis();
-        LinkedList<PreQuery> preQueries = parseQueryFile(queryFilePath);
-        LinkedList<Ranker> rankers = Searcher.setQueries(preQueries);
-        LinkedList<String> resultLines = new LinkedList<>();
-
-        for (int i=0; i<rankers.size(); i++){
-            rankers.get(i).runRanking();
-            resultLines.addAll(rankers.get(i).toArrayString());
-        }
-        long end = System.currentTimeMillis();
-
-        long runTime = end - start;
-        lastRankers = rankers;
-
-        onQueryFinished(rankers, runTime);
-        System.out.println("success");
-    }
-
-    public void runSingleQuery(ActionEvent event){
-        long start = System.currentTimeMillis();
-
-        LinkedList<PreQuery> preQueries = new LinkedList<>();
-        PreQuery preQuery = new PreQuery(input_query.getText(), 0, "");
-        preQueries.add(preQuery);
-
-        LinkedList<Ranker> rankers = Searcher.setQueries(preQueries);
-        LinkedList<String> resultLines = new LinkedList<>();
-
-        for (int i=0; i<rankers.size(); i++){
-            rankers.get(i).runRanking();
-            resultLines.addAll(rankers.get(i).toArrayString());
-        }
-
-        long end = System.currentTimeMillis();
-
-        long runTime = end - start;
-
-
-        lastRankers = rankers;
-
-        onQueryFinished(rankers, runTime);
-
-        System.out.println("success");
-    }
-
-
-    public LinkedList<PreQuery> parseQueryFile(String filePath){
-        LinkedList<PreQuery> res = new LinkedList<>();
-
-        File f = new File(filePath);
-        byte[] aux = null;
-        try {
-            aux = Files.readAllBytes(f.toPath());
-        } catch (Exception e){e.printStackTrace();}
-
-        String entireFile = new String(aux);
-
-        String[] queries = entireFile.split("<top>");
-
-        for (int i=0; i<queries.length; i++){
-            if (queries[i].trim().equals("")) continue;
-
-            PreQuery preQuery = new PreQuery();
-
-            String[] lines = queries[i].split("\n");
-            for (int j=0; j<lines.length; j++){
-                if (lines[j].contains("<title>")) preQuery.queryString = lines[j].replace("<title>","").trim();
-                if (lines[j].contains("<num>")) {
-                    String str = lines[j].replace("<num>","").replace("Number:","").trim();
-                    try{
-                        preQuery.queryNumber = Integer.parseInt(str);
-                    } catch (NumberFormatException e) {
-                        System.err.println("Couldnt parse query number");
-                    }
-                }
-//                if (lines[j].contains("<description"))
+            LinkedList<PreQuery> preQueries = new LinkedList<PreQuery>();
+            if (singleQuery){
+                PreQuery preQuery = new PreQuery(input_query.getText(), 0, "");
+                preQueries.add(preQuery);
+            } else {
+                preQueries.addAll(parseQueryFile(queryFilePath));
             }
 
-            res.add(preQuery);
+            LinkedList<Ranker> rankers = Searcher.setQueries(preQueries);
+            LinkedList<String> resultLines = new LinkedList<>();
 
+            for (int i=0; i<rankers.size(); i++){
+                rankers.get(i).runRanking();
+                resultLines.addAll(rankers.get(i).toArrayString());
+            }
+            long end = System.currentTimeMillis();
+
+            long runTime = end - start;
+            lastRankers = rankers;
+
+            onQueryFinished(rankers, runTime);
+
+            System.out.println("Success: queries complete!");
+            showWaitMessage(false);
+        }
+    }
+
+
+    public boolean checkIntegrity(boolean isSingleQuery){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Parse._initParser();
+        HashSet<String> sw = _initStopwordsTable();
+        if (sw == null) noStopwordsFile();
+
+        String corpusPath = ReadFile.path;
+        if (corpusPath == null && docSummary) {
+            alert.setContentText("You must choose a corpus path if you want document summary!");
+            alert.show();
+            return false;
         }
 
-        return res;
-    }
+        if (docSummary && extendedQuery){
+            alert.setContentText("Can't do extended query and document search at once! Pick one!");
+            alert.show();
+            return false;
+        }
+
+        if (!isSingleQuery && (queryFilePath==null || queryFilePath.equals(""))){
+            alert.setContentText("You must choose a query file path before running queries from file");
+            alert.show();
+            return false;
+        }
+
+        if (isSingleQuery && (input_query.getText().equals("")||input_query.getText()==null)){
+            alert.setContentText("Empty query!");
+            alert.show();
+            return false;
+        }
+
+        boolean hasFiles = false;
+        String postingFilepath = Indexer.getPostingFilePath();
+        if (!new File(postingFilepath).exists()) {
+            alert.setContentText("Couldn't find posting file! Make sure you have PostingFile_WithStem.txt or PostingFile.txt inside posting folder chosen!");
+            alert.show();
+            return false;
+        }
+
+        if (Dictionary.md_Dictionary.size()==0 || Document.documentsCollection.size()==0){
+            alert.setContentText("Load dictionary and documents collection first before running queries!");
+            alert.show();
+            return false;
+        }
+
+        return true;
+        }
 
     public void writeQueryResultsToFile(LinkedList<String> lines) {
         try {
@@ -462,6 +436,9 @@ public class Controller {
                 }
                 writer.flush();
                 writer.close();
+
+                lastSavedResultsFile = f.getAbsolutePath();
+
             }
 
         } catch (IOException e){
@@ -470,6 +447,14 @@ public class Controller {
     }
 
     public void saveResults(ActionEvent event){
+
+        if (lastRankers == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Run a query first! Nothing to save!");
+            alert.show();
+            return;
+        }
+
         LinkedList<String> lines = new LinkedList<>();
         for (int i=0; i<lastRankers.size(); i++){
             lines.addAll(lastRankers.get(i).toArrayString());
@@ -525,6 +510,44 @@ public class Controller {
 
 
 
+    public LinkedList<PreQuery> parseQueryFile(String filePath){
+        LinkedList<PreQuery> res = new LinkedList<>();
+
+        File f = new File(filePath);
+        byte[] aux = null;
+        try {
+            aux = Files.readAllBytes(f.toPath());
+        } catch (Exception e){e.printStackTrace();}
+
+        String entireFile = new String(aux);
+
+        String[] queries = entireFile.split("<top>");
+
+        for (int i=0; i<queries.length; i++){
+            if (queries[i].trim().equals("")) continue;
+
+            PreQuery preQuery = new PreQuery();
+
+            String[] lines = queries[i].split("\n");
+            for (int j=0; j<lines.length; j++){
+                if (lines[j].contains("<title>")) preQuery.queryString = lines[j].replace("<title>","").trim();
+                if (lines[j].contains("<num>")) {
+                    String str = lines[j].replace("<num>","").replace("Number:","").trim();
+                    try{
+                        preQuery.queryNumber = Integer.parseInt(str);
+                    } catch (NumberFormatException e) {
+                        System.err.println("Couldnt parse query number");
+                    }
+                }
+//                if (lines[j].contains("<description"))
+            }
+
+            res.add(preQuery);
+
+        }
+
+        return res;
+    }
 
 
 

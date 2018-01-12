@@ -97,7 +97,6 @@ public class Searcher {
         HashMap<String, MyPair> data = new HashMap<>();
 
         String[] splitData = postingLine.split("#|,");
-//        System.out.printf("Read posting line number %d of term %s\n", postingLine, splitData[0]);
 
         for (int i = 1; i < splitData.length; i++) {
             String[] aux = splitData[i].split(":");

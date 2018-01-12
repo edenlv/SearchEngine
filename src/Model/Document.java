@@ -83,44 +83,49 @@ public class Document implements Serializable{
         return documentsCollection.size();
     }
 
-    public void computeVectorSize(){
-        double sumOfSquaredWeights = 0;
-        Iterator<String> it = hMap.keySet().iterator();
-
-        while (it.hasNext()){
-            sumOfSquaredWeights+=Math.pow(getWordWeight(it.next()),2);
-        }
-
-        this.docVectorSize = Math.sqrt(sumOfSquaredWeights);
-        this.hMap.clear();
-        this.hMap = null;
+    public static void reset(){
+        documentsCollection.clear();
+        avgDocSize = -1;
     }
 
-    public double getWordWeight(String word){
-        double idf = Dictionary.getWordPreIDF(word);
-        double normalTF = hMap.get(word).getTf()/this.mostFrequentTermValue;
-        return normalTF*idf;
-    }
+//    public void computeVectorSize(){
+//        double sumOfSquaredWeights = 0;
+//        Iterator<String> it = hMap.keySet().iterator();
+//
+//        while (it.hasNext()){
+//            sumOfSquaredWeights+=Math.pow(getWordWeight(it.next()),2);
+//        }
+//
+//        this.docVectorSize = Math.sqrt(sumOfSquaredWeights);
+//        this.hMap.clear();
+//        this.hMap = null;
+//    }
+
+//    public double getWordWeight(String word){
+//        double idf = Dictionary.getWordPreIDF(word);
+//        double normalTF = hMap.get(word).getTf()/this.mostFrequentTermValue;
+//        return normalTF*idf;
+//    }
 
 
-    public static void writeCollectionToFile(){
-
-        String filePath = ReadFile.postingsPath+"\\DocumentsCollection" + ((Parse.toStem) ? "_WithStem" : "") + ".txt";
-        try {
-            ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(new File(filePath)));
-            writer.writeObject(documentsCollection);
-            writer.flush();
-            writer.close();
-        } catch (IOException e){ e.printStackTrace(); }
-    }
-
-    public static void computeAllDocVectorSizes(){
-        Iterator<Document> it = documentsCollection.values().iterator();
-        while (it.hasNext()){
-            Document doc = it.next();
-            doc.computeVectorSize();
-        }
-    }
+//    public static void writeCollectionToFile(){
+//
+//        String filePath = ReadFile.postingsPath+"\\DocumentsCollection" + ((Parse.toStem) ? "_WithStem" : "") + ".txt";
+//        try {
+//            ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(new File(filePath)));
+//            writer.writeObject(documentsCollection);
+//            writer.flush();
+//            writer.close();
+//        } catch (IOException e){ e.printStackTrace(); }
+//    }
+//
+//    public static void computeAllDocVectorSizes(){
+//        Iterator<Document> it = documentsCollection.values().iterator();
+//        while (it.hasNext()){
+//            Document doc = it.next();
+//            doc.computeVectorSize();
+//        }
+//    }
 
     public static boolean loadDocumentsFile(){
         try {
