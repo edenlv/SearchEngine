@@ -332,6 +332,12 @@ public class Controller {
         Document.reset();
         Searcher.postingLinesCache.clear();
         Searcher.Queries.clear();
+        if (lastSavedResultsFile!=null) {
+            File f = new File(lastSavedResultsFile);
+            if (f.exists()) f.delete();
+            File f2 = new File(ReadFile.postingsPath+"\\last_results_pretty.txt");
+            if (f2.exists()) f2.delete();
+        }
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setContentText("Reset program successfully");
         alert.show();
