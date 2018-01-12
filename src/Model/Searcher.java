@@ -44,6 +44,8 @@ public class Searcher {
                 }
             }
 
+//            test(parsedQuery);
+
              postLinesToRead.addAll(neededLines);
 
              Query qry = new Query(pQuery.queryNumber);
@@ -158,6 +160,23 @@ public class Searcher {
 //        return result;
 //    }
 
+
+    public static void test(ArrayList<String> parsedQuery){
+        HashSet<String> terms = new HashSet<>(parsedQuery);
+
+        try (Stream<String> lines = Files.lines(Paths.get("C:\\Users\\levye\\Desktop\\runs\\run_nostem\\PostingFile.txt"))){
+            lines.filter(
+                    str -> {
+                        String term = str.split("#")[0];
+                        if (terms.contains(term)) {
+                            return true;
+                        }
+                        return false;
+                    }
+            ).forEach(str -> System.out.println(str.split("#")[0]));
+        }catch (Exception e) {}
+
+    }
 
 
 

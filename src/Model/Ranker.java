@@ -81,7 +81,7 @@ public class Ranker {
                     (val1, val2) -> {
                         return Double.compare(val2.cosSim, val1.cosSim);
                     }
-            ).limit(50).forEach(
+            ).limit(Controller.extendedQuery ? 70 : 50).forEach(
                     (qResult) -> {
                         results.add(qResult);
                     }

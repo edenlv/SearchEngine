@@ -12,8 +12,16 @@ import javafx.stage.FileChooser;
 
 import java.awt.Desktop;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static Model.Document.*;
 import static Model.Parse.*;
@@ -22,6 +30,8 @@ import static Model.Searcher.getParsedQuery;
 
 public class Controller {
 
+    public static final String wikiAPI = "http://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&titles=";
+    public static final String disambAPI = "http://en.wikipedia.org/w/api.php?action=query&list=search&srprop=timestamp&format=xml&srsearch=";
     public static boolean extendedQuery = false;
     public static boolean docSummary = false;
     public Button corpusPathBtn;
@@ -53,14 +63,14 @@ public class Controller {
     public TextField txt_cos;
     public TextField txt_bm;
 
-    public void onChooseDirectory(ActionEvent event){
+    public void onChooseDirectory(ActionEvent event) {
         DirectoryChooser dirChooser = new DirectoryChooser();
         String title;
         dirChooser.setTitle("Choose Your Directory");
 
         File f = dirChooser.showDialog(null);
 
-        if (null!=f) {
+        if (null != f) {
             String filePath = f.getAbsolutePath();
 
             if (event.getSource() == corpusPathBtn) {
@@ -73,29 +83,29 @@ public class Controller {
         }
     }
 
-    public void onToggleStem(ActionEvent event){
-        boolean isSelected = ((CheckBox)event.getSource()).isSelected();
+    public void onToggleStem(ActionEvent event) {
+        boolean isSelected = ((CheckBox) event.getSource()).isSelected();
 
-        if (event.getSource()==cb_stem){
+        if (event.getSource() == cb_stem) {
             Parse.setStem(isSelected);
-        } else if (event.getSource()==cb_docSummary){
+        } else if (event.getSource() == cb_docSummary) {
             Controller.docSummary = isSelected;
-        } else if (event.getSource() == cb_extendedQuery){
+        } else if (event.getSource() == cb_extendedQuery) {
             Controller.extendedQuery = isSelected;
         }
     }
 
-    public void onStartIndexing(ActionEvent event){
+    public void onStartIndexing(ActionEvent event) {
 
-        if (ReadFile.path == null || ReadFile.postingsPath==null){
-            Alert alert = new Alert(Alert.AlertType.ERROR,"Please choose directory paths for the corpus and posting files!");
+        if (ReadFile.path == null || ReadFile.postingsPath == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose directory paths for the corpus and posting files!");
             alert.show();
         } else {
             runProgram();
         }
     }
 
-    public void runProgram(){
+    public void runProgram() {
         showWaitMessage(true);
 
         Indexer.fileCounter = 0;
@@ -111,7 +121,7 @@ public class Controller {
         long end = System.currentTimeMillis();
         long runtime_ms = end - start;
         long runtime_sec = runtime_ms / 1000L;
-        String runtime_minutes = Parse.round(String.valueOf((runtime_ms/1000.0)/60.0));
+        String runtime_minutes = Parse.round(String.valueOf((runtime_ms / 1000.0) / 60.0));
         System.out.println("Full program runtime: " + (runtime_ms / 1000.0) + "[sec] or " + runtime_ms + "[ms] or " + runtime_minutes + "[minutes]");
         programRunTimeInSeconds = runtime_sec;
 
@@ -169,13 +179,13 @@ public class Controller {
 //        }
 //    }
 
-    public void onSaveDictionaryAndCache(ActionEvent actionEvent){
+    public void onSaveDictionaryAndCache(ActionEvent actionEvent) {
         DirectoryChooser dirChooser = new DirectoryChooser();
         dirChooser.setTitle("Choose folder directory");
 
         File f = dirChooser.showDialog(null);
 
-        if (null!=f) {
+        if (null != f) {
             String folderPath = f.getAbsolutePath();
 
             Dictionary.saveDictionary(folderPath);
@@ -208,7 +218,8 @@ public class Controller {
 //        }
 //    }
 
-    public void showWaitMessage(boolean toShow){
+    public void showWaitMessage(boolean toShow) {
+        if (waitAlert!=null && waitAlert.isShowing()) return;
         if (toShow) {
             waitAlert = new Alert(Alert.AlertType.INFORMATION);
             waitAlert.setTitle("Wait... Program is running!");
@@ -221,9 +232,7 @@ public class Controller {
     }
 
 
-
-
-    public void showDoneMessage(){
+    public void showDoneMessage() {
         int numberOfDocuments = documentsCollection.size();
         long indexSize = Indexer.getIndexSizeInBytes();
         long cacheSize = Cache.getSizeInBytes();
@@ -239,16 +248,16 @@ public class Controller {
         alert.show();
     }
 
-    public void LoadDictionaryAndCacheFromFolder(ActionEvent event){
+    public void LoadDictionaryAndCacheFromFolder(ActionEvent event) {
         DirectoryChooser dirChooser = new DirectoryChooser();
         dirChooser.setTitle("Choose folder directory");
 
         File f = dirChooser.showDialog(null);
 
-        if (null!=f) {
+        if (null != f) {
             File[] subfiles = f.listFiles(File::isFile);
             boolean foundCache = false, foundDic = false, foundDocCollection = false;
-            for (int i=0; i<subfiles.length; i++){
+            for (int i = 0; i < subfiles.length; i++) {
                 File file = subfiles[i];
 
                 if (file.getName().startsWith("Cache") && ((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))) {
@@ -257,7 +266,7 @@ public class Controller {
                 } else if (file.getName().startsWith("Dictionary") && ((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))) {
                     Dictionary.loadDictionary(file.getAbsolutePath());
                     foundDic = true;
-                } else if (file.getName().startsWith("Documents") && ((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))){
+                } else if (file.getName().startsWith("Documents") && ((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))) {
                     Document.loadDocumentsCollection(file.getAbsolutePath());
                     foundDocCollection = true;
                 }
@@ -265,7 +274,7 @@ public class Controller {
 
             System.out.println("success");
 
-            if (!foundDocCollection || !foundDic){
+            if (!foundDocCollection || !foundDic) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Couldn't find files! They must be named according to your stemming checkbox and start with \"Dictionary\" or \"Cache\"!");
                 alert.show();
@@ -273,13 +282,13 @@ public class Controller {
         }
     }
 
-    public static void noStopwordsFile(){
+    public static void noStopwordsFile() {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setContentText("You must put a file named stop_words.txt inside the corpus path you've chosen!");
         alert.show();
     }
 
-    public void loadDictionaryAndDocCollection(ActionEvent event){
+    public void loadDictionaryAndDocCollection(ActionEvent event) {
 
 
         DirectoryChooser dirChooser = new DirectoryChooser();
@@ -287,11 +296,11 @@ public class Controller {
 
         File f = dirChooser.showDialog(null);
 
-        if (null!=f) {
+        if (null != f) {
             File[] subfiles = f.listFiles(File::isFile);
             boolean foundDic = false, foundDocCollection = false;
             showWaitMessage(true);
-            for (int i=0; i<subfiles.length; i++){
+            for (int i = 0; i < subfiles.length; i++) {
                 File file = subfiles[i];
                 if (((Parse.toStem && file.getName().contains("Stem")) || (!Parse.toStem && !file.getName().contains("Stem")))) {
                     if (file.getName().startsWith("Dictionary")) {
@@ -307,7 +316,7 @@ public class Controller {
             showWaitMessage(false);
             System.out.println("Success: Loaded dictionary, cache and documents collection!");
 
-            if (!foundDocCollection || !foundDic){
+            if (!foundDocCollection || !foundDic) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Couldn't find files! They must be named according to your stemming checkbox and start with \"Dictionary\" or \"DocumentsCollection\"!");
                 alert.show();
@@ -316,37 +325,38 @@ public class Controller {
 
     }
 
-    public void chooseQueryFilePath(ActionEvent event){
+    public void chooseQueryFilePath(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose queries file");
 
         File f = fileChooser.showOpenDialog(null);
-        if (null!=f && f.exists()){
+        if (null != f && f.exists()) {
             queryFileInput.setText(f.getAbsolutePath());
             queryFilePath = f.getAbsolutePath();
         }
     }
 
-    public void resetProgram(ActionEvent event){
+    public void resetProgram(ActionEvent event) {
         Dictionary.resetDictionary();
         Document.reset();
         Searcher.postingLinesCache.clear();
         Searcher.Queries.clear();
-        if (lastSavedResultsFile!=null) {
+        if (lastSavedResultsFile != null) {
             File f = new File(lastSavedResultsFile);
             if (f.exists()) f.delete();
-            File f2 = new File(ReadFile.postingsPath+"\\last_results_pretty.txt");
-            if (f2.exists()) f2.delete();
         }
+        File f2 = new File(ReadFile.postingsPath + "\\last_results_pretty.txt");
+        if (f2.exists()) f2.delete();
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setContentText("Reset program successfully");
         alert.show();
     }
 
-    public void execDocSummary(){
+    public void execDocSummary() {
         String input = input_query.getText();
         Document doc = Document.documentsCollection.get(input);
-        if (doc == null){
+        if (doc == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("No such document!");
             alert.show();
@@ -354,25 +364,33 @@ public class Controller {
         }
 
         String folder = doc.getFolderName();
-        String path = ReadFile.path+"\\"+folder+"\\"+folder;
-        top5(path,input);
+        String path = ReadFile.path + "\\" + folder + "\\" + folder;
+        top5(path, input);
     }
 
-    public void run(ActionEvent event){
-        boolean singleQuery = event.getSource()==btn_qRun;
+    public void run(ActionEvent event) {
+        boolean singleQuery = event.getSource() == btn_qRun;
 
         boolean isOK = checkIntegrity(singleQuery);
-        if (isOK){
-            if (docSummary){
-                execDocSummary();
-                return;
-            }
+        if (isOK) {
+
             long start = System.currentTimeMillis();
             showWaitMessage(true);
 
+            String query = input_query.getText();
+
+            if (docSummary) {
+                execDocSummary();
+                return;
+            }
+
+            if (extendedQuery){
+                query = wikiQuery(query);
+            }
+
             LinkedList<PreQuery> preQueries = new LinkedList<PreQuery>();
-            if (singleQuery){
-                PreQuery preQuery = new PreQuery(input_query.getText(), 0, "");
+            if (singleQuery) {
+                PreQuery preQuery = new PreQuery(query, 0, "");
                 preQueries.add(preQuery);
             } else {
                 preQueries.addAll(parseQueryFile(queryFilePath));
@@ -381,7 +399,7 @@ public class Controller {
             LinkedList<Ranker> rankers = Searcher.setQueries(preQueries);
             LinkedList<String> resultLines = new LinkedList<>();
 
-            for (int i=0; i<rankers.size(); i++){
+            for (int i = 0; i < rankers.size(); i++) {
                 rankers.get(i).runRanking();
                 resultLines.addAll(rankers.get(i).toArrayString());
             }
@@ -398,7 +416,7 @@ public class Controller {
     }
 
 
-    public boolean checkIntegrity(boolean isSingleQuery){
+    public boolean checkIntegrity(boolean isSingleQuery) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         Parse._initParser();
         HashSet<String> sw = _initStopwordsTable();
@@ -411,19 +429,25 @@ public class Controller {
             return false;
         }
 
-        if (docSummary && extendedQuery){
+        if (docSummary && extendedQuery) {
             alert.setContentText("Can't do extended query and document search at once! Pick one!");
             alert.show();
             return false;
         }
 
-        if (!isSingleQuery && (queryFilePath==null || queryFilePath.equals(""))){
+        if (extendedQuery && input_query.getText().split("\\s+").length>1){
+            alert.setContentText("For wikipedia queries you must enter a single word!");
+            alert.show();
+            return false;
+        }
+
+        if (!isSingleQuery && (queryFilePath == null || queryFilePath.equals(""))) {
             alert.setContentText("You must choose a query file path before running queries from file");
             alert.show();
             return false;
         }
 
-        if (isSingleQuery && (input_query.getText().equals("")||input_query.getText()==null)){
+        if (isSingleQuery && (input_query.getText().equals("") || input_query.getText() == null)) {
             alert.setContentText("Empty query!");
             alert.show();
             return false;
@@ -437,14 +461,14 @@ public class Controller {
             return false;
         }
 
-        if (Dictionary.md_Dictionary.size()==0 || Document.documentsCollection.size()==0){
+        if (Dictionary.md_Dictionary.size() == 0 || Document.documentsCollection.size() == 0) {
             alert.setContentText("Load dictionary and documents collection first before running queries!");
             alert.show();
             return false;
         }
 
         return true;
-        }
+    }
 
     public void writeQueryResultsToFile(LinkedList<String> lines) {
         try {
@@ -456,7 +480,7 @@ public class Controller {
                 f.createNewFile();
 
                 PrintWriter writer = new PrintWriter(new FileWriter(f));
-                for (int i=0; i<lines.size(); i++){
+                for (int i = 0; i < lines.size(); i++) {
                     writer.println(lines.get(i));
                 }
                 writer.flush();
@@ -466,14 +490,14 @@ public class Controller {
 
             }
 
-        } catch (IOException e){
+        } catch (IOException e) {
             System.err.println("couldnt save results file");
         }
     }
 
-    public void saveResults(ActionEvent event){
+    public void saveResults(ActionEvent event) {
 
-        if (lastRankers == null){
+        if (lastRankers == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Run a query first! Nothing to save!");
             alert.show();
@@ -481,21 +505,21 @@ public class Controller {
         }
 
         LinkedList<String> lines = new LinkedList<>();
-        for (int i=0; i<lastRankers.size(); i++){
+        for (int i = 0; i < lastRankers.size(); i++) {
             lines.addAll(lastRankers.get(i).toArrayString());
         }
 
         writeQueryResultsToFile(lines);
     }
 
-    public void onQueryFinished(LinkedList<Ranker> rankers, long time){
+    public void onQueryFinished(LinkedList<Ranker> rankers, long time) {
         ArrayList<String> lines = new ArrayList<>();
-        double minutes = (time/1000)/60;
+        double minutes = (time / 1000) / 60;
 
         lines.add("Total runtime for queries: " + minutes + " minutes.");
         lines.add("-----------------------------------------------------------------");
 
-        for(int i=0; i<rankers.size(); i++){
+        for (int i = 0; i < rankers.size(); i++) {
             Ranker currRanker = rankers.get(i);
             lines.add("Query number: " + currRanker.query.queryNumber);
             lines.add("Number of relevant documents retrieved for query: " + currRanker.getResult50().size());
@@ -504,17 +528,17 @@ public class Controller {
             lines.add("-----------------------------------------------------------------");
         }
 
-        printToFile(ReadFile.postingsPath+"\\last_results_pretty.txt", lines);
+        printToFile(ReadFile.postingsPath + "\\last_results_pretty.txt", lines);
     }
 
-    public static void printToFile(String path, ArrayList<String> lines){
-        try{
-            File f = new File (path);
+    public static void printToFile(String path, ArrayList<String> lines) {
+        try {
+            File f = new File(path);
             if (f.exists()) f.delete();
             f.createNewFile();
 
             PrintWriter writer = new PrintWriter(new FileWriter(f));
-            for (int j=0; j<lines.size(); j++){
+            for (int j = 0; j < lines.size(); j++) {
                 writer.println(lines.get(j));
             }
             writer.flush();
@@ -531,35 +555,37 @@ public class Controller {
                 System.out.println("Desktop is not supported!");
             }
 
-        } catch (Exception e){
+        } catch (Exception e) {
             System.err.println("couldnt open query finished file");
         }
     }
 
-    public LinkedList<PreQuery> parseQueryFile(String filePath){
+    public LinkedList<PreQuery> parseQueryFile(String filePath) {
         LinkedList<PreQuery> res = new LinkedList<>();
 
         File f = new File(filePath);
         byte[] aux = null;
         try {
             aux = Files.readAllBytes(f.toPath());
-        } catch (Exception e){e.printStackTrace();}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         String entireFile = new String(aux);
 
         String[] queries = entireFile.split("<top>");
 
-        for (int i=0; i<queries.length; i++){
+        for (int i = 0; i < queries.length; i++) {
             if (queries[i].trim().equals("")) continue;
 
             PreQuery preQuery = new PreQuery();
 
             String[] lines = queries[i].split("\n");
-            for (int j=0; j<lines.length; j++){
-                if (lines[j].contains("<title>")) preQuery.queryString = lines[j].replace("<title>","").trim();
+            for (int j = 0; j < lines.length; j++) {
+                if (lines[j].contains("<title>")) preQuery.queryString = lines[j].replace("<title>", "").trim();
                 if (lines[j].contains("<num>")) {
-                    String str = lines[j].replace("<num>","").replace("Number:","").trim();
-                    try{
+                    String str = lines[j].replace("<num>", "").replace("Number:", "").trim();
+                    try {
                         preQuery.queryNumber = Integer.parseInt(str);
                     } catch (NumberFormatException e) {
                         System.err.println("Couldnt parse query number");
@@ -625,7 +651,7 @@ public class Controller {
                     score += (tf / maxTF);
                 }
             }
-            docMap.put(sentence,score);
+            docMap.put(sentence, score);
             idxList.add(sentence);
         }
 
@@ -633,26 +659,147 @@ public class Controller {
         ArrayList<String> sortedSentences = new ArrayList<>();
 
         docMap.entrySet().stream().sorted(
-                (e1, e2)-> Double.compare(e2.getValue(),e1.getValue())
+                (e1, e2) -> Double.compare(e2.getValue(), e1.getValue())
         ).limit(5).forEach(
                 entry -> sortedSentences.add(entry.getKey())
         );
 
-        int i=1;
+        int i = 1;
         Iterator<String> it = docMap.keySet().iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             String sentence = it.next();
             int idx = sortedSentences.indexOf(sentence);
-            if (idx!=-1){
-                lines.add(i+". Score: " + (idx+1));
+            if (idx != -1) {
+                lines.add(i + ". Score: " + (idx + 1));
                 lines.add(sentence.replaceAll("\\s\\s+", " "));
                 i++;
             }
-            if (i==6) break;
+            if (i == 6) break;
         }
 
-        Controller.printToFile(ReadFile.postingsPath+"\\last_results_pretty.txt", lines);
+        Controller.printToFile(ReadFile.postingsPath + "\\last_results_pretty.txt", lines);
 
+    }
+
+    public static String httpGET(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("GET");
+            http.setRequestProperty("User-Agent", "Mozilla/5.0");
+//            http.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+
+            int responseCode = http.getResponseCode();
+            boolean redirected = false;
+
+            System.out.println("GET Response Code :: " + responseCode);
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+                        || responseCode == HttpURLConnection.HTTP_MOVED_PERM
+                        || responseCode == HttpURLConnection.HTTP_SEE_OTHER)
+                    redirected = true;
+            }
+
+            if (redirected) {
+                // get redirect url from "location" header field
+                String newUrl = http.getHeaderField("Location");
+                http = (HttpURLConnection) new URL(newUrl).openConnection();
+                http.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+                http.addRequestProperty("User-Agent", "Mozilla");
+                http.addRequestProperty("Referer", "google.com");
+            }
+
+            if (responseCode == HttpURLConnection.HTTP_OK || redirected) { // success
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        http.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                return response.toString();
+            }
+        } catch (Exception e) {
+            System.err.println("Couldn't perform HTTP GET to Wikipedia");
+        }
+        return null;
+    }
+
+
+    public static String wikiQuery(String page){
+
+        String encodedPage = URLEncoder.encode(page);
+        String response = httpGET(wikiAPI+encodedPage);
+
+        ArrayList<String> paragraphs = extractTag("p", response);
+
+        //TODO: take care
+        if (paragraphs.size()==0) return null;
+
+        String firstParagraph = paragraphs.get(0);
+        if (firstParagraph.contains("may refer to")){
+            String response2 = httpGET(disambAPI+encodedPage);
+
+            Pattern TAG_REGEX = Pattern.compile("title=\"(.+?)\"");
+            ArrayList<String> tagValues = new ArrayList<String>();
+            Matcher matcher = TAG_REGEX.matcher(response2);
+            while (matcher.find()) {
+                String found = matcher.group(1);
+                if (found.equals(page)) continue;
+                tagValues.add(found);
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            tagValues.stream().limit(2).forEach(
+                    str -> stringBuilder.append(wikiQuery(str))
+            );
+
+            firstParagraph = stringBuilder.toString();
+
+        } else {
+            firstParagraph = firstParagraph.replaceAll("\\<[^>]*>","");
+        }
+
+
+        return encodeUTF8(firstParagraph);
+
+    }
+
+    public static String encodeUTF8(String data){
+        Pattern p = Pattern.compile("\\\\u(\\p{XDigit}{4})");
+        Matcher m = p.matcher(data);
+        StringBuffer buf = new StringBuffer(data.length());
+        while (m.find()) {
+            String ch = String.valueOf((char) Integer.parseInt(m.group(1), 16));
+            m.appendReplacement(buf, Matcher.quoteReplacement(ch));
+        }
+        m.appendTail(buf);
+        return buf.toString();
+    }
+
+    public static void main(String[] args){
+        ReadFile.path = "C:\\Users\\levye\\Desktop\\ENGINE\\corpus";
+        Parse._initStopwordsTable();
+        Parse._initParser();
+        String x = wikiQuery("Queen");
+        ArrayList<String> res = Searcher.getParsedQuery(x);
+        System.out.println("success");
+
+        Searcher.test(res);
+    }
+
+    public static ArrayList<String> extractTag(String tag, String text){
+        Pattern TAG_REGEX = Pattern.compile("<"+tag+">(.+?)"+"</"+tag+">");
+        ArrayList<String> tagValues = new ArrayList<String>();
+        Matcher matcher = TAG_REGEX.matcher(text);
+        while (matcher.find()) {
+            tagValues.add(matcher.group(1));
+        }
+        return tagValues;
     }
 
 
