@@ -12,7 +12,7 @@
 
 <BorderPane minHeight="900.0" minWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller">
    <top>
-       <HBox alignment="BOTTOM_CENTER" prefHeight="128.0" prefWidth="1000.0" BorderPane.alignment="BOTTOM_CENTER">
+       <HBox alignment="BOTTOM_CENTER" prefHeight="93.0" prefWidth="1000.0" BorderPane.alignment="BOTTOM_CENTER">
            <children>
                <Label alignment="BOTTOM_CENTER" text="Search Engine" textAlignment="CENTER">
                    <font>
@@ -29,7 +29,7 @@
        </HBox>
    </top>
     <center>
-        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+        <VBox alignment="CENTER" prefWidth="1000.0" BorderPane.alignment="CENTER">
 
             <HBox alignment="CENTER" minHeight="50.0" minWidth="120.0" BorderPane.alignment="CENTER">
                 <Button fx:id="corpusPathBtn" onAction="#onChooseDirectory" prefHeight="50" prefWidth="150.0" text="Corpus Path">

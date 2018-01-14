@@ -219,7 +219,7 @@ public class Controller {
 //    }
 
     public void showWaitMessage(boolean toShow) {
-        if (waitAlert!=null && waitAlert.isShowing()) return;
+        if (waitAlert!=null && waitAlert.isShowing() && toShow) return;
         if (toShow) {
             waitAlert = new Alert(Alert.AlertType.INFORMATION);
             waitAlert.setTitle("Wait... Program is running!");
