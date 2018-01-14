@@ -11,10 +11,10 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class Ranker {
-    public HashMap<String, QueryResult> queryResults;
-    public Query query;
-    public double queryVectorSize;
-    public LinkedList<QueryResult> result50;
+    public HashMap<String, QueryResult> queryResults;//holds ALL of the results of the query
+    public Query query;//the query of this specific ranker
+    public double queryVectorSize;//the query's vector size, calcualted once
+    public LinkedList<QueryResult> result50;//holds the 50\70 most relevant results of the query (saved once as cache)
 
 
     public Ranker(Query qry) {
@@ -23,6 +23,9 @@ public class Ranker {
         this.queryVectorSize = Math.abs(this.query.parsedQuery.size());
     }
 
+    /*
+    Runs the actual query ranking computings. Calls calcPartialCosSim() to calculate the ranking score.
+     */
     public void runRanking() {
         this.queryResults.clear();
 
@@ -42,7 +45,10 @@ public class Ranker {
 
     }
 
-
+    /*
+    Calculates the score of a document. Adds up to previous score if document was found more than once.
+    Using CosSim formula and BM25 formula.
+     */
     public void calcPartialCosSim(String term, Document doc, MyPair pair, double termIDF) {
 
         double normalTF = pair.tf / doc.mostFrequentTermValue;
@@ -71,6 +77,9 @@ public class Ranker {
 
     }
 
+    /*
+    Returns the 50 or 70 most relevant results of the query. Saves in a variable for cache - no need to compute twice.
+     */
     public LinkedList<QueryResult> getResult50(){
         if (queryResults.size()==0) return null;
 
@@ -94,6 +103,9 @@ public class Ranker {
     }
 
 
+    /*
+    returns toString for TREC format of the results of this query.
+     */
     public LinkedList<String> toArrayString(){
         LinkedList<String> res = new LinkedList<>();
 
@@ -116,6 +128,9 @@ public class Ranker {
         return res;
     }
 
+    /*
+    Returns toString of the results to show after each query run.
+     */
     public LinkedList<String> prettifyResult(){
         LinkedList<String> res = new LinkedList<>();
 

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 public class QueryResult {
 
     Document document;
-    double cosSim;
-    ArrayList<String> matchedTerms;
+    double cosSim;//score of the document
+    ArrayList<String> matchedTerms;//terms that this document includes from the query
 
 
     public QueryResult(){

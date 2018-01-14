@@ -541,6 +541,7 @@ public class Controller {
             for (int j = 0; j < lines.size(); j++) {
                 writer.println(lines.get(j));
             }
+
             writer.flush();
             writer.close();
 

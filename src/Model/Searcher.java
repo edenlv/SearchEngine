@@ -18,6 +18,10 @@ public class Searcher {
     public static HashMap<Integer, String> postingLinesCache = new HashMap<>();
     public static ArrayList<Query> Queries = new ArrayList<Query>();
 
+    /*
+    Sets the queries, parses them and reads the posting lines needed from the posting lines and creates
+    Rankers according to the queries.
+     */
     public static LinkedList<Ranker> setQueries(LinkedList<PreQuery> queries){
 //        postingLinesCache.clear();
         Queries.clear();
@@ -83,6 +87,9 @@ public class Searcher {
     }
 
 
+    /*
+    Parses only the query and returns it splitted into words
+     */
     public static ArrayList<String> getParsedQuery(String query){
         ReadFile.docBuffer.clear();
         Parse.uppercaseLongTerm.setLength(0);
@@ -99,6 +106,10 @@ public class Searcher {
     }
 
 
+    /*
+    Proccess the raw posting line read from the posting file and returns all the data inside a PostingEntry object,
+    which includes all the data of the term (DocID, TF, idx in doc, etc...)
+     */
     public static PostingEntry processPostingLine(String postingLine){
         HashMap<String, MyPair> data = new HashMap<>();
 
@@ -115,13 +126,10 @@ public class Searcher {
         return pEntry;
     }
 
-//    public static ArrayList<String> getExtendedQuery(String q){
-//        String[] words = q.split(" ");
-////        HttpURLConnection conn = new Http
-//    }
 
-
-
+    /*
+    Reads the lineNumber from the postingFile, returns raw data
+     */
     public static String getLineFromPostingFile(int lineNumber){
         try (Stream<String> lines = Files.lines(Paths.get(Indexer.getPostingFilePath()))) {
             return lines.skip(lineNumber).findFirst().get();
@@ -159,6 +167,7 @@ public class Searcher {
 //        }
 //        return result;
 //    }
+
 
 
     public static void test(ArrayList<String> parsedQuery){
